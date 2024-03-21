@@ -1,15 +1,5 @@
 #pragma once
 
-#ifndef REMOVE_ME
-#define REMOVE_ME 1
-// remove me
-extern int gpuFramebufferScanlineStrideBytes = 480;
-extern int displayXOffset = 0;
-extern int displayYOffset = 0;
-extern int gpuFrameHeight = 240;
-extern int gpuFrameWidth = 240;
-#endif
-
 #define ST7789 1
 #define ST7789VW 1
 #define GPIO_TFT_DATA_CONTROL 6
