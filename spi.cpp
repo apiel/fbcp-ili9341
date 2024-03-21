@@ -99,42 +99,22 @@ void RunSPITask(SPITask *task)
 {
   WaitForPolledSPITransferToFinish();
 
-  // The Adafruit 1.65" 240x240 ST7789 based display is unique compared to others that it does want to see the Chip Select line go
-  // low and high to start a new command. For that display we let hardware SPI toggle the CS line, and actually run TA<-0 and TA<-1
-  // transitions to let the CS line live. For most other displays, we just set CS line always enabled for the display throughout fbcp-ili9341 lifetime,
-  // which is a tiny bit faster.
-#ifdef DISPLAY_NEEDS_CHIP_SELECT_SIGNAL
   BEGIN_SPI_COMMUNICATION();
-#endif
 
   uint8_t *tStart = task->PayloadStart();
   uint8_t *tEnd = task->PayloadEnd();
   const uint32_t payloadSize = tEnd - tStart;
   uint8_t *tPrefillEnd = tStart + MIN(15, payloadSize);
 
-  // Send the command word if display is 4-wire (3-wire displays can omit this, commands are interleaved in the data payload stream above)
-#ifndef SPI_3WIRE_PROTOCOL
   // An SPI transfer to the display always starts with one control (command) byte, followed by N data bytes.
   CLEAR_GPIO(GPIO_TFT_DATA_CONTROL);
 
-  // #ifdef DISPLAY_SPI_BUS_IS_16BITS_WIDE
-  //   // On e.g. the ILI9486, all commands are 16-bit, so need to be clocked in in two bytes. The MSB byte is always zero though in all the defined commands.
-  //   WRITE_FIFO(0x00);
-  // #endif
   WRITE_FIFO(task->cmd);
 
-#ifdef DISPLAY_SPI_BUS_IS_16BITS_WIDE
-  while (!(spi->cs & (BCM2835_SPI0_CS_DONE))) /*nop*/
-    ;
-  spi->fifo;
-  spi->fifo;
-#else
   while (!(spi->cs & (BCM2835_SPI0_CS_RXD | BCM2835_SPI0_CS_DONE))) /*nop*/
     ;
-#endif
 
   SET_GPIO(GPIO_TFT_DATA_CONTROL);
-#endif // ~!SPI_3WIRE_PROTOCOL
 
   while (tStart < tPrefillEnd)
     WRITE_FIFO(*tStart++);
@@ -148,9 +128,7 @@ void RunSPITask(SPITask *task)
       spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA | DISPLAY_SPI_DRIVE_SETTINGS;
   }
 
-#ifdef DISPLAY_NEEDS_CHIP_SELECT_SIGNAL
   END_SPI_COMMUNICATION();
-#endif
 }
 // #endif
 

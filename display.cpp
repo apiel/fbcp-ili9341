@@ -20,6 +20,10 @@ void ClearScreen()
     CommitTask(clearLine);
     RunSPITask(clearLine);
     DoneTask(clearLine);
+
+    // uint8_t pixels[DISPLAY_WIDTH * SPI_BYTESPERPIXEL];
+    // memset(pixels, 0, DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
+
   }
 
   SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
@@ -33,13 +37,6 @@ void drawStuff()
     int x = DISPLAY_HEIGHT - y - 1;
     SPI_TRANSFER(DISPLAY_SET_CURSOR_X, (uint8_t)(x >> 8), (uint8_t)(x & 0xFF), (uint8_t)(x >> 8), (uint8_t)(x & 0xFF));
     SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (uint8_t)(y >> 8), (uint8_t)(y & 0xFF));
-    // SPITask *pixel = AllocTask(SPI_BYTESPERPIXEL);
-    // pixel->cmd = DISPLAY_WRITE_PIXELS;
-    // pixel->data[0] = 0xFF00FF;
-    // CommitTask(pixel);
-    // RunSPITask(pixel);
-    // DoneTask(pixel);
-
     uint16_t pixel = 0xFF00FF;
     SPI_TRANSFER(DISPLAY_WRITE_PIXELS, pixel >> 8, pixel & 0xFF);
   }
