@@ -10,7 +10,7 @@
 #include "config.h"
 #include "spi.h"
 #include "util.h"
-#include "dma.h"
+// #include "dma.h"
 #include "mailbox.h"
 
 // Uncomment this to print out all bytes sent to the SPI bus
@@ -141,18 +141,18 @@ void RunSPITask(SPITask *task)
 // For small transfers, using DMA is not worth it, but pushing through with polled SPI gives better bandwidth.
 // For larger transfers though that are more than this amount of bytes, using DMA is faster.
 // This cutoff number was experimentally tested to find where Polled SPI and DMA are as fast.
-#define DMA_IS_FASTER_THAN_POLLED_SPI 140
+// #define DMA_IS_FASTER_THAN_POLLED_SPI 140
   // Do a DMA transfer if this task is suitable in size for DMA to handle
-#ifdef USE_DMA_TRANSFERS
-  if (tEnd - tStart > DMA_IS_FASTER_THAN_POLLED_SPI)
-  {
-    SPIDMATransfer(task);
+// #ifdef USE_DMA_TRANSFERS
+//   if (tEnd - tStart > DMA_IS_FASTER_THAN_POLLED_SPI)
+//   {
+//     SPIDMATransfer(task);
 
-    // After having done a DMA transfer, the SPI0 DLEN register has reset to zero, so restore it to fast mode.
-    UNLOCK_FAST_8_CLOCKS_SPI();
-  }
-  else
-#endif
+//     // After having done a DMA transfer, the SPI0 DLEN register has reset to zero, so restore it to fast mode.
+//     UNLOCK_FAST_8_CLOCKS_SPI();
+//   }
+//   else
+// #endif
   {
     while (tStart < tPrefillEnd)
       WRITE_FIFO(*tStart++);
@@ -320,9 +320,9 @@ void DeinitSPI()
   spiThread = (pthread_t)0;
 #endif
   DeinitSPIDisplay();
-#ifdef USE_DMA_TRANSFERS
-  DeinitDMA();
-#endif
+// #ifdef USE_DMA_TRANSFERS
+  // DeinitDMA();
+// #endif
 
   spi->cs = BCM2835_SPI0_CS_CLEAR | DISPLAY_SPI_DRIVE_SETTINGS;
 
