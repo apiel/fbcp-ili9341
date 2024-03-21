@@ -89,10 +89,10 @@ void WaitForPolledSPITransferToFinish()
   uint32_t cs;
   while (!(((cs = spi->cs) ^ BCM2835_SPI0_CS_TA) & (BCM2835_SPI0_CS_DONE | BCM2835_SPI0_CS_TA))) // While TA=1 and DONE=0
     if ((cs & (BCM2835_SPI0_CS_RXR | BCM2835_SPI0_CS_RXF)))
-      spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA; // | DISPLAY_SPI_DRIVE_SETTINGS;
+      spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA | DISPLAY_SPI_DRIVE_SETTINGS;
 
   if ((cs & BCM2835_SPI0_CS_RXD))
-    spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA; // | DISPLAY_SPI_DRIVE_SETTINGS;
+    spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA | DISPLAY_SPI_DRIVE_SETTINGS;
 }
 
 void RunSPITask(SPITask *task)
@@ -145,7 +145,7 @@ void RunSPITask(SPITask *task)
       WRITE_FIFO(*tStart++);
     // TODO:      else asm volatile("yield");
     if ((cs & (BCM2835_SPI0_CS_RXR | BCM2835_SPI0_CS_RXF)))
-      spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA; // | DISPLAY_SPI_DRIVE_SETTINGS;
+      spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA | DISPLAY_SPI_DRIVE_SETTINGS;
   }
 
 #ifdef DISPLAY_NEEDS_CHIP_SELECT_SIGNAL
@@ -251,7 +251,7 @@ int InitSPI()
   // fbcp-ili9341 lifetime, which is a tiny bit faster.
   // SET_GPIO_MODE(GPIO_SPI0_CE0, 0x04);
 
-  spi->cs = BCM2835_SPI0_CS_CLEAR; // | DISPLAY_SPI_DRIVE_SETTINGS; // Initialize the Control and Status register to defaults: CS=0 (Chip Select), CPHA=0 (Clock Phase), CPOL=0 (Clock Polarity), CSPOL=0 (Chip Select Polarity), TA=0 (Transfer not active), and reset TX and RX queues.
+  spi->cs = BCM2835_SPI0_CS_CLEAR | DISPLAY_SPI_DRIVE_SETTINGS; // Initialize the Control and Status register to defaults: CS=0 (Chip Select), CPHA=0 (Clock Phase), CPOL=0 (Clock Polarity), CSPOL=0 (Chip Select Polarity), TA=0 (Transfer not active), and reset TX and RX queues.
   spi->clk = SPI_BUS_CLOCK_DIVISOR;                             // Clock Divider determines SPI bus speed, resulting speed=256MHz/clk
 
   spiTaskMemory = (SharedMemory *)malloc(SHARED_MEMORY_SIZE);
