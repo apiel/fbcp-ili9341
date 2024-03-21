@@ -185,20 +185,20 @@ void DoneTask(SPITask *task) // Frees the first SPI task from the queue, called 
   __sync_synchronize();
 }
 
-extern volatile bool programRunning;
+// extern volatile bool programRunning;
 
-void ExecuteSPITasks()
-{
-  while (programRunning && spiTaskMemory->queueTail != spiTaskMemory->queueHead)
-  {
-    SPITask *task = GetTask();
-    if (task)
-    {
-      RunSPITask(task);
-      DoneTask(task);
-    }
-  }
-}
+// void ExecuteSPITasks()
+// {
+//   while (programRunning && spiTaskMemory->queueTail != spiTaskMemory->queueHead)
+//   {
+//     SPITask *task = GetTask();
+//     if (task)
+//     {
+//       RunSPITask(task);
+//       DoneTask(task);
+//     }
+//   }
+// }
 
 int InitSPI()
 {

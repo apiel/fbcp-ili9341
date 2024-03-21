@@ -21,7 +21,7 @@
 #include "display.h"
 #include "util.h"
 
-volatile bool programRunning = true;
+// volatile bool programRunning = true;
 
 int main()
 {
