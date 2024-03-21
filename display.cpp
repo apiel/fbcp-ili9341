@@ -23,18 +23,26 @@ void drawPixel(uint16_t x, uint16_t y, uint16_t color)
 
 void drawFillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
-  sendAddr(DISPLAY_SET_CURSOR_X, x, x + w);
-  sendAddr(DISPLAY_SET_CURSOR_Y, y, y + h);
+  // sendAddr(DISPLAY_SET_CURSOR_X, x, x + w);
+  // sendAddr(DISPLAY_SET_CURSOR_Y, y, y + h);
 
-  uint16_t size = w * h * SPI_BYTESPERPIXEL;
-  uint8_t pixels[size];
-  uint8_t pixel[SPI_BYTESPERPIXEL] = {color >> 8, color & 0xFF};
-  for (uint16_t i = 0; i < size; i += SPI_BYTESPERPIXEL)
+  // uint16_t size = w * h * SPI_BYTESPERPIXEL;
+  // uint8_t pixels[size];
+  // uint8_t pixel[SPI_BYTESPERPIXEL] = {color >> 8, color & 0xFF};
+  // for (uint16_t i = 0; i < size; i += SPI_BYTESPERPIXEL)
+  // {
+  //   pixels[i] = pixel[0];
+  //   pixels[i + 1] = pixel[1];
+  // }
+  // sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
+
+  for (uint16_t i = 0; i < w; ++i)
   {
-    pixels[i] = pixel[0];
-    pixels[i + 1] = pixel[1];
+    for (uint16_t j = 0; j < h; ++j)
+    {
+      drawPixel(x + i, y + j, color);
+    }
   }
-  sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
 }
 
 void ClearScreen()
