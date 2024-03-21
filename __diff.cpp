@@ -1,5 +1,5 @@
 #include "config.h"
-#include "diff.h"
+#include "__diff.h"
 #include "util.h"
 #include "display.h"
 #include "gpu.h"
