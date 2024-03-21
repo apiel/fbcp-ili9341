@@ -1,5 +1,14 @@
 #pragma once
 
+#define ST7789VW 1
+#define GPIO_TFT_DATA_CONTROL 6
+#define GPIO_TFT_RESET_PIN 5
+#define GPIO_TFT_BACKLIGHT 13
+#define SPI_BUS_CLOCK_DIVISOR 40
+#define USE_DMA_TRANSFERS 0
+#define DISPLAY_ROTATE_180_DEGREES 1
+
+
 // Build options: Uncomment any of these, or set at the command line to configure:
 
 // How many usecs worth of past frame rate data do we preserve in the history buffer. Higher values
