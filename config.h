@@ -1,6 +1,6 @@
 #pragma once
 
-#deinfe ST7789 1
+#define ST7789 1
 #define ST7789VW 1
 #define GPIO_TFT_DATA_CONTROL 6
 #define GPIO_TFT_RESET_PIN 5
