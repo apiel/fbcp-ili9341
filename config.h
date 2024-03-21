@@ -3,11 +3,11 @@
 #ifndef REMOVE_ME
 #define REMOVE_ME 1
 // remove me
-int gpuFramebufferScanlineStrideBytes = 480;
-int displayXOffset = 0;
-int displayYOffset = 0;
-int gpuFrameHeight = 240;
-int gpuFrameWidth = 240;
+extern int gpuFramebufferScanlineStrideBytes = 480;
+extern int displayXOffset = 0;
+extern int displayYOffset = 0;
+extern int gpuFrameHeight = 240;
+extern int gpuFrameWidth = 240;
 #endif
 
 #define ST7789 1
