@@ -76,10 +76,10 @@ int main()
   signal(SIGUSR2, ProgramInterruptHandler);
   signal(SIGTERM, ProgramInterruptHandler);
 
-  OpenMailbox();
+  // OpenMailbox();
   InitSPI();
 
   DeinitSPI();
-  CloseMailbox();
+  // CloseMailbox();
   printf("Quit.\n");
 }
