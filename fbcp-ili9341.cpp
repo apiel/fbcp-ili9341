@@ -18,7 +18,7 @@
 
 #include "config.h"
 #include "spi.h"
-// #include "gpu.h"
+#include "gpu.h"
 #include "tick.h"
 #include "display.h"
 #include "util.h"
@@ -70,8 +70,8 @@ void ProgramInterruptHandler(int signal)
   }
 
   // Wake the main thread if it was sleeping for a new frame so that it can gracefully quit
-  // __atomic_fetch_add(&numNewGpuFrames, 1, __ATOMIC_SEQ_CST);
-  // syscall(SYS_futex, &numNewGpuFrames, FUTEX_WAKE, 1, 0, 0, 0);
+  __atomic_fetch_add(&numNewGpuFrames, 1, __ATOMIC_SEQ_CST);
+  syscall(SYS_futex, &numNewGpuFrames, FUTEX_WAKE, 1, 0, 0, 0);
 }
 
 int main()
@@ -91,9 +91,9 @@ int main()
   int spiY = -1;
   int spiEndX = DISPLAY_WIDTH;
 
-  // InitGPU();
+  InitGPU();
 
-  // printf("GPU initialized gpuFrameWidth = %d, gpuFrameHeight = %d gpuFramebufferScanlineStrideBytes = %d\n", gpuFrameWidth, gpuFrameHeight, gpuFramebufferScanlineStrideBytes);
+  printf("GPU initialized gpuFrameWidth = %d, gpuFrameHeight = %d gpuFramebufferScanlineStrideBytes = %d displayXOffset = %d displayYOffset = %d\n", gpuFrameWidth, gpuFrameHeight, gpuFramebufferScanlineStrideBytes, displayXOffset, displayYOffset);
   int gpuFramebufferScanlineStrideBytes = 480;
 
   spans = (Span *)Malloc((DISPLAY_WIDTH * DISPLAY_HEIGHT / 2) * sizeof(Span), "main() task spans");
@@ -292,7 +292,7 @@ int main()
     }
   }
 
-  // DeinitGPU();
+  DeinitGPU();
   DeinitSPI();
   CloseMailbox();
   printf("Quit.\n");
