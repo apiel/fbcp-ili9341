@@ -168,6 +168,20 @@ int main()
       __atomic_fetch_sub(&numNewGpuFrames, numNewFrames, __ATOMIC_SEQ_CST);
     }
 
+
+
+
+    // Draw some pixel in framebuffer[0] if we have new data.
+    for (int y = 0; y < DISPLAY_DRAWABLE_HEIGHT; ++y)
+      for (int x = 0; x < DISPLAY_DRAWABLE_WIDTH; ++x)
+        framebuffer[0][y * DISPLAY_DRAWABLE_WIDTH + x] = 0xff00ff;
+        
+
+
+
+
+
+
     // If too many pixels have changed on screen, drop adaptively to interlaced updating to keep up the frame rate.
     double inputDataFps = 1000000.0 / EstimateFrameRateInterval();
     double desiredTargetFps = MAX(1, MIN(inputDataFps, TARGET_FRAME_RATE));
