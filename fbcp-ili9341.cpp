@@ -26,10 +26,10 @@ volatile bool programRunning = true;
 
 int main()
 {
-  OpenMailbox();
+  // OpenMailbox();
   InitSPI();
 
   DeinitSPI();
-  CloseMailbox();
+  // CloseMailbox();
   printf("Quit.\n");
 }
