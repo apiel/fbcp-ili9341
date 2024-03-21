@@ -11,47 +11,12 @@
 #include "spi.h"
 #include "util.h"
 
-#define TOGGLE_CHIP_SELECT_LINE() ((void)0)
-
 static uint32_t writeCounter = 0;
-
-#define WRITE_FIFO(word)         \
-  do                             \
-  {                              \
-    uint8_t w = (word);          \
-    spi->fifo = w;               \
-    TOGGLE_CHIP_SELECT_LINE();   \
-  } while (0)
 
 int mem_fd = -1;
 volatile void *bcm2835 = 0;
 volatile GPIORegisterFile *gpio = 0;
 volatile SPIRegisterFile *spi = 0;
-
-// // Points to the system timer register. N.B. spec sheet says this is two low and high parts, in an 32-bit aligned (but not 64-bit aligned) address. Profiling shows
-// // that Pi 3 Model B does allow reading this as a u64 load, and even when unaligned, it is around 30% faster to do so compared to loading in parts "lo | (hi << 32)".
-// volatile uint64_t *systemTimerRegister = 0;
-
-void DumpSPICS(uint32_t reg)
-{
-  PRINT_FLAG(BCM2835_SPI0_CS_CS);
-  PRINT_FLAG(BCM2835_SPI0_CS_CPHA);
-  PRINT_FLAG(BCM2835_SPI0_CS_CPOL);
-  PRINT_FLAG(BCM2835_SPI0_CS_CLEAR_TX);
-  PRINT_FLAG(BCM2835_SPI0_CS_CLEAR_RX);
-  PRINT_FLAG(BCM2835_SPI0_CS_TA);
-  PRINT_FLAG(BCM2835_SPI0_CS_DMAEN);
-  PRINT_FLAG(BCM2835_SPI0_CS_INTD);
-  PRINT_FLAG(BCM2835_SPI0_CS_INTR);
-  PRINT_FLAG(BCM2835_SPI0_CS_ADCS);
-  PRINT_FLAG(BCM2835_SPI0_CS_DONE);
-  PRINT_FLAG(BCM2835_SPI0_CS_RXD);
-  PRINT_FLAG(BCM2835_SPI0_CS_TXD);
-  PRINT_FLAG(BCM2835_SPI0_CS_RXR);
-  PRINT_FLAG(BCM2835_SPI0_CS_RXF);
-  printf("SPI0 DLEN: %u\n", spi->dlen);
-  printf("SPI0 CE0 register: %d\n", GET_GPIO(GPIO_SPI0_CE0) ? 1 : 0);
-}
 
 // Errata to BCM2835 behavior: documentation states that the SPI0 DLEN register is only used for DMA. However, even when DMA is not being utilized, setting it from
 // a value != 0 or 1 gets rid of an excess idle clock cycle that is present when transmitting each byte. (by default in Polled SPI Mode each 8 bits transfer in 9 clocks)
@@ -79,8 +44,7 @@ void sendCmd(uint8_t cmd, uint8_t *payload, uint32_t payloadSize)
   // An SPI transfer to the display always starts with one control (command) byte, followed by N data bytes.
   CLEAR_GPIO(GPIO_TFT_DATA_CONTROL);
 
-  WRITE_FIFO(cmd);
-
+  spi->fifo = cmd;
   while (!(spi->cs & (BCM2835_SPI0_CS_RXD | BCM2835_SPI0_CS_DONE))) /*nop*/
     ;
 
@@ -93,12 +57,12 @@ void sendCmd(uint8_t cmd, uint8_t *payload, uint32_t payloadSize)
     uint8_t *tPrefillEnd = tStart + MIN(15, payloadSize);
 
     while (tStart < tPrefillEnd)
-      WRITE_FIFO(*tStart++);
+      spi->fifo = *tStart++;
     while (tStart < tEnd)
     {
       uint32_t cs = spi->cs;
       if ((cs & BCM2835_SPI0_CS_TXD))
-        WRITE_FIFO(*tStart++);
+        spi->fifo = *tStart++;
       if ((cs & (BCM2835_SPI0_CS_RXR | BCM2835_SPI0_CS_RXF)))
         spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA | DISPLAY_SPI_DRIVE_SETTINGS;
     }
