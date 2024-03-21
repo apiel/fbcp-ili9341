@@ -8,32 +8,31 @@
 
 void sendAddr(uint8_t cmd, uint16_t addr0, uint16_t addr1)
 {
-  uint8_t addr[4] = { addr0 >> 8, addr0 & 0xFF, addr1 >> 8, addr1 & 0xFF };
+  uint8_t addr[4] = {(uint8_t)(addr0 >> 8), (uint8_t)(addr0 & 0xFF), (uint8_t)(addr1 >> 8), (uint8_t)(addr1 & 0xFF)};
   sendCmd(cmd, addr, 4);
 }
 
 void ClearScreen()
 {
-  for (int y = 0; y < DISPLAY_HEIGHT; ++y)
-  {
+  // for (int y = 0; y < DISPLAY_HEIGHT; ++y)
+  // {
+  //   sendAddr(DISPLAY_SET_CURSOR_X, 0, DISPLAY_WIDTH - 1);
+  //   sendAddr(DISPLAY_SET_CURSOR_Y, y, DISPLAY_HEIGHT - 1);
 
-    // SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
-    // SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
-    sendAddr(DISPLAY_SET_CURSOR_X, 0, DISPLAY_WIDTH - 1);
-    sendAddr(DISPLAY_SET_CURSOR_Y, y, DISPLAY_HEIGHT - 1);
+  //   uint16_t pixel = 0xFF00FF;
+  //   uint8_t pixels[DISPLAY_WIDTH * SPI_BYTESPERPIXEL];
+  //   memset(pixels, (uint8_t)0, DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
+  //   sendCmd(DISPLAY_WRITE_PIXELS, pixels, DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
+  // }
 
-    // SPITask *clearLine = AllocTask(DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
-    // clearLine->cmd = DISPLAY_WRITE_PIXELS;
-    // memset(clearLine->data, 0, clearLine->size);
-    // CommitTask(clearLine);
-    // RunSPITask(clearLine);
-    // DoneTask(clearLine);
+  sendAddr(DISPLAY_SET_CURSOR_X, 0, DISPLAY_WIDTH - 1);
+  sendAddr(DISPLAY_SET_CURSOR_Y, 0, DISPLAY_HEIGHT - 1);
 
-    uint16_t pixel = 0xFF00FF;
-    uint8_t pixels[DISPLAY_WIDTH * SPI_BYTESPERPIXEL];
-    memset(pixels, (uint8_t)0, DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
-    sendCmd(DISPLAY_WRITE_PIXELS, pixels, DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
-  }
+  uint16_t pixel = 0xFF00FF;
+  uint16_t size = DISPLAY_WIDTH * DISPLAY_HEIGHT * SPI_BYTESPERPIXEL;
+  uint8_t pixels[size];
+  memset(pixels, (uint8_t)0, size);
+  sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
 
   SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
   SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, 0, 0, (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
@@ -48,7 +47,7 @@ void drawStuff()
     sendAddr(DISPLAY_SET_CURSOR_Y, (uint16_t)y, (uint16_t)y);
 
     uint16_t pixel = 0xFF00FF;
-    uint8_t data[2] = { pixel >> 8, pixel & 0xFF };
+    uint8_t data[2] = {pixel >> 8, pixel & 0xFF};
     sendCmd(DISPLAY_WRITE_PIXELS, data, 2);
   }
 }
@@ -117,8 +116,8 @@ void InitST7735R()
   usleep(10 * 1000); // Delay a bit before restoring CLK, or otherwise this has been observed to cause the display not init if done back to back after the clear operation above.
   spi->clk = SPI_BUS_CLOCK_DIVISOR;
 
-    printf("draw stuff\n");
-    drawStuff();
+  printf("draw stuff\n");
+  drawStuff();
 }
 
 void DeinitSPIDisplay()
