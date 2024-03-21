@@ -17,7 +17,6 @@
 #include <signal.h>
 
 #include "config.h"
-#include "text.h"
 #include "spi.h"
 #include "gpu.h"
 #include "tick.h"
