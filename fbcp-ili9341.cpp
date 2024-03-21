@@ -26,7 +26,6 @@
 #include "mailbox.h"
 #include "diff.h"
 #include "mem_alloc.h"
-#include "keyboard.h"
 
 int CountNumChangedPixels(uint16_t *framebuffer, uint16_t *prevFramebuffer)
 {
@@ -134,7 +133,6 @@ int main()
   bool prevFrameWasInterlacedUpdate = false;
   bool interlacedUpdate = false; // True if the previous update we did was an interlaced half field update.
   int frameParity = 0; // For interlaced frame updates, this is either 0 or 1 to denote evens or odds.
-  OpenKeyboard();
   printf("All initialized, now running main loop...\n");
   while(programRunning)
   {
@@ -477,8 +475,7 @@ int main()
     if (displayIsActive)
       displayContentsLastChanged = tick();
 
-    bool keyboardIsActive = TimeSinceLastKeyboardPress() < TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY;
-    if (displayIsActive || keyboardIsActive)
+    if (displayIsActive)
     {
       if (displayOff)
       {
@@ -497,6 +494,5 @@ int main()
   DeinitGPU();
   DeinitSPI();
   CloseMailbox();
-  CloseKeyboard();
   printf("Quit.\n");
 }
