@@ -23,44 +23,21 @@ void drawPixel(uint16_t x, uint16_t y, uint16_t color)
 
 void drawFillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
-  sendAddr(DISPLAY_SET_CURSOR_X, x, x + w);
-  sendAddr(DISPLAY_SET_CURSOR_Y, y, y + h);
-
-  uint16_t size = w * h * SPI_BYTESPERPIXEL;
-  uint8_t pixels[size];
-  uint8_t pixel[SPI_BYTESPERPIXEL] = {color >> 8, color & 0xFF};
-  for (uint16_t i = 0; i < size; i += SPI_BYTESPERPIXEL)
+  for (int yPos = 0; yPos < h; ++yPos)
   {
-    pixels[i] = pixel[0];
-    pixels[i + 1] = pixel[1];
+    sendAddr(DISPLAY_SET_CURSOR_X, x, x + w);
+    sendAddr(DISPLAY_SET_CURSOR_Y, y + yPos, y + yPos);
+
+    uint16_t size = w * SPI_BYTESPERPIXEL;
+    uint8_t pixels[size];
+    uint8_t pixel[SPI_BYTESPERPIXEL] = {color >> 8, color & 0xFF};
+    for (uint16_t i = 0; i < size; i += SPI_BYTESPERPIXEL)
+    {
+      pixels[i] = pixel[0];
+      pixels[i + 1] = pixel[1];
+    }
+    sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
   }
-  sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
-
-  // for (uint16_t i = 0; i < w; ++i)
-  // {
-  //   for (uint16_t j = 0; j < h; ++j)
-  //   {
-  //     drawPixel(x + i, y + j, color);
-  //   }
-  // }
-}
-
-void ClearScreen()
-{
-  sendAddr(DISPLAY_SET_CURSOR_X, 0, DISPLAY_WIDTH - 1);
-  sendAddr(DISPLAY_SET_CURSOR_Y, 0, DISPLAY_HEIGHT - 1);
-
-  uint16_t size = DISPLAY_WIDTH * DISPLAY_HEIGHT * SPI_BYTESPERPIXEL;
-  uint8_t pixels[size];
-  memset(pixels, (uint8_t)0, size);
-  // for (uint16_t i = 0; i < size; i++)
-  // {
-  //   pixels[i] = 0;
-  // }
-  sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
-
-  SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
-  SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, 0, 0, (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
 }
 
 void drawStuff()
@@ -71,7 +48,7 @@ void drawStuff()
     drawPixel(x, y, 0xFF00FF);
   }
 
-  // drawFillRect(20, 40, 10, 10, 0xFF00FF);
+  drawFillRect(20, 40, 20, 20, 0xFF00FF);
 }
 
 void InitST7735R()
@@ -128,10 +105,10 @@ void InitST7735R()
     if ((madctl & MADCTL_ROW_ADDRESS_ORDER_SWAP))
       SPI_TRANSFER(0x37 /*VSCSAD: Vertical Scroll Start Address of RAM*/, 0, 320 - DISPLAY_WIDTH);
 
+    drawFillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0); // clear screen
+
     SPI_TRANSFER(/*Display ON*/ 0x29);
     usleep(100 * 1000);
-
-    ClearScreen();
   }
 
   // And speed up to the desired operation speed finally after init is done.

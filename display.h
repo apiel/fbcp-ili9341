@@ -62,8 +62,6 @@
 
 #define SPI_BYTESPERPIXEL 2
 
-void ClearScreen(void);
-
 void TurnBacklightOn(void);
 void TurnBacklightOff(void);
 
