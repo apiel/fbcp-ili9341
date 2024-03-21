@@ -40,7 +40,8 @@ void drawStuff()
     // RunSPITask(pixel);
     // DoneTask(pixel);
 
-    SPI_TRANSFER(DISPLAY_WRITE_PIXELS, 0xFF00FF);
+    uint16_t pixel = 0xFF00FF;
+    SPI_TRANSFER(DISPLAY_WRITE_PIXELS, pixel >> 8, pixel & 0xFF);
   }
 }
 
