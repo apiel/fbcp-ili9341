@@ -346,13 +346,6 @@ static inline SPITask *AllocTask(uint32_t bytes) // Returns a pointer to a new S
 
 static inline void CommitTask(SPITask *task) // Advertises the given SPI task from main thread to worker, called on main thread
 {
-#ifdef SPI_3WIRE_PROTOCOL
-#ifdef SPI_32BIT_COMMANDS
-  Interleave16BitSPITaskTo32Bit(task);
-#else
-  Interleave8BitSPITaskTo9Bit(task);
-#endif
-#endif
   __sync_synchronize();
 #if !defined(KERNEL_MODULE_CLIENT) && !defined(KERNEL_MODULE)
   uint32_t tail = spiTaskMemory->queueTail;
@@ -365,15 +358,11 @@ static inline void CommitTask(SPITask *task) // Advertises the given SPI task fr
 #endif
 }
 
-#ifdef USE_SPI_THREAD
-#define IN_SINGLE_THREADED_MODE_RUN_TASK() ((void)0)
-#else
 #define IN_SINGLE_THREADED_MODE_RUN_TASK() { \
   SPITask *t = GetTask(); \
   RunSPITask(t); \
   DoneTask(t); \
 }
-#endif
 
 int InitSPI(void);
 void DeinitSPI(void);
@@ -382,6 +371,3 @@ void RunSPITask(SPITask *task);
 SPITask *GetTask(void);
 void DoneTask(SPITask *task);
 void DumpSPICS(uint32_t reg);
-#ifdef RUN_WITH_REALTIME_THREAD_PRIORITY
-void SetRealtimeThreadPriority();
-#endif

@@ -200,31 +200,6 @@ void ExecuteSPITasks()
   }
 }
 
-#if !defined(KERNEL_MODULE) && defined(USE_SPI_THREAD)
-pthread_t spiThread;
-
-// A worker thread that keeps the SPI bus filled at all times
-void *spi_thread(void *unused)
-{
-  // #ifdef RUN_WITH_REALTIME_THREAD_PRIORITY
-  //   SetRealtimeThreadPriority();
-  // #endif
-  while (programRunning)
-  {
-    if (spiTaskMemory->queueTail != spiTaskMemory->queueHead)
-    {
-      ExecuteSPITasks();
-    }
-    else
-    {
-      if (programRunning)
-        syscall(SYS_futex, &spiTaskMemory->queueTail, FUTEX_WAIT, spiTaskMemory->queueHead, 0, 0, 0); // Start sleeping until we get new tasks
-    }
-  }
-  pthread_exit(0);
-}
-#endif
-
 int InitSPI()
 {
   // Memory map GPIO and SPI peripherals for direct access
@@ -270,10 +245,6 @@ int InitSPI()
 
 void DeinitSPI()
 {
-#ifdef USE_SPI_THREAD
-  pthread_join(spiThread, NULL);
-  spiThread = (pthread_t)0;
-#endif
   DeinitSPIDisplay();
 
   spi->cs = BCM2835_SPI0_CS_CLEAR | DISPLAY_SPI_DRIVE_SETTINGS;
