@@ -99,6 +99,11 @@ void InitST7735R()
     usleep(100 * 1000);
 
     ClearScreen();
+  }
+
+  // And speed up to the desired operation speed finally after init is done.
+  usleep(10 * 1000); // Delay a bit before restoring CLK, or otherwise this has been observed to cause the display not init if done back to back after the clear operation above.
+  spi->clk = SPI_BUS_CLOCK_DIVISOR;
 
     printf("draw stuff\n");
     drawStuff();
@@ -114,11 +119,6 @@ void InitST7735R()
     usleep(1000 * 1000);
     printf(".\n");
     printf("done sleep\n");
-  }
-
-  // And speed up to the desired operation speed finally after init is done.
-  usleep(10 * 1000); // Delay a bit before restoring CLK, or otherwise this has been observed to cause the display not init if done back to back after the clear operation above.
-  spi->clk = SPI_BUS_CLOCK_DIVISOR;
 }
 
 void DeinitSPIDisplay()
