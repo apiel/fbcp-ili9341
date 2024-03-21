@@ -292,7 +292,7 @@ int InitSPI()
 
   spiTaskMemory->queueHead = spiTaskMemory->queueTail = spiTaskMemory->spiBytesQueued = 0;
 
-  InitDMA();
+  // InitDMA();
 
   // Enable fast 8 clocks per byte transfer mode, instead of slower 9 clocks per byte.
   UNLOCK_FAST_8_CLOCKS_SPI();
