@@ -6,6 +6,8 @@
 #endif
 #include <linux/futex.h>
 
+#include <unistd.h> // usleep
+
 #include "display.h"
 #include "display.h"
 

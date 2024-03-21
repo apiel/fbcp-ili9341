@@ -4,6 +4,7 @@
 
 #include <memory.h>
 #include <stdio.h>
+#include <unistd.h>
 
 void ClearScreen()
 {
