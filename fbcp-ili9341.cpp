@@ -156,22 +156,22 @@ int main()
       uint64_t waitStart = tick();
       while(__atomic_load_n(&numNewGpuFrames, __ATOMIC_SEQ_CST) == 0)
       {
-#if defined(BACKLIGHT_CONTROL) && defined(TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY)
-        if (!displayOff && tick() - waitStart > TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY)
-        {
-          TurnDisplayOff();
-          displayOff = true;
-        }
+// #if defined(BACKLIGHT_CONTROL) && defined(TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY)
+//         if (!displayOff && tick() - waitStart > TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY)
+//         {
+//           TurnDisplayOff();
+//           displayOff = true;
+//         }
 
-        if (!displayOff)
-        {
-          timespec timeout = {};
-          timeout.tv_sec = ((uint64_t)TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY * 1000) / 1000000000;
-          timeout.tv_nsec = ((uint64_t)TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY * 1000) % 1000000000;
-          if (programRunning) syscall(SYS_futex, &numNewGpuFrames, FUTEX_WAIT, 0, &timeout, 0, 0); // Sleep until the next frame arrives
-        }
-        else
-#endif
+//         if (!displayOff)
+//         {
+//           timespec timeout = {};
+//           timeout.tv_sec = ((uint64_t)TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY * 1000) / 1000000000;
+//           timeout.tv_nsec = ((uint64_t)TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY * 1000) % 1000000000;
+//           if (programRunning) syscall(SYS_futex, &numNewGpuFrames, FUTEX_WAIT, 0, &timeout, 0, 0); // Sleep until the next frame arrives
+//         }
+//         else
+// #endif
           if (programRunning) syscall(SYS_futex, &numNewGpuFrames, FUTEX_WAIT, 0, 0, 0, 0); // Sleep until the next frame arrives
       }
     }
@@ -270,7 +270,7 @@ int main()
 #endif
     const double tooMuchToUpdateUsecs = timesliceToUseForScreenUpdates / desiredTargetFps; // If updating the current and new frame takes too many frames worth of allotted time, drop to interlacing.
 
-#if !defined(NO_INTERLACING) || (defined(BACKLIGHT_CONTROL) && defined(TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY))
+#if !defined(NO_INTERLACING)
     int numChangedPixels = framebufferHasNewChangedPixels ? CountNumChangedPixels(framebuffer[0], framebuffer[1]) : 0;
 #endif
 
@@ -468,26 +468,26 @@ int main()
       curFrameEnd = spiTaskMemory->queueTail;
     }
 
-#if defined(BACKLIGHT_CONTROL) && defined(TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY)
-    double percentageOfScreenChanged = (double)numChangedPixels/(DISPLAY_DRAWABLE_WIDTH*DISPLAY_DRAWABLE_HEIGHT);
-    bool displayIsActive = percentageOfScreenChanged > DISPLAY_CONSIDERED_INACTIVE_PERCENTAGE;
-    if (displayIsActive)
-      displayContentsLastChanged = tick();
+// #if defined(BACKLIGHT_CONTROL) && defined(TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY)
+//     double percentageOfScreenChanged = (double)numChangedPixels/(DISPLAY_DRAWABLE_WIDTH*DISPLAY_DRAWABLE_HEIGHT);
+//     bool displayIsActive = percentageOfScreenChanged > DISPLAY_CONSIDERED_INACTIVE_PERCENTAGE;
+//     if (displayIsActive)
+//       displayContentsLastChanged = tick();
 
-    if (displayIsActive)
-    {
-      if (displayOff)
-      {
-        TurnDisplayOn();
-        displayOff = false;
-      }
-    }
-    else if (!displayOff && tick() - displayContentsLastChanged > TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY)
-    {
-      TurnDisplayOff();
-      displayOff = true;
-    }
-#endif
+//     if (displayIsActive)
+//     {
+//       if (displayOff)
+//       {
+//         TurnDisplayOn();
+//         displayOff = false;
+//       }
+//     }
+//     else if (!displayOff && tick() - displayContentsLastChanged > TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY)
+//     {
+//       TurnDisplayOff();
+//       displayOff = true;
+//     }
+// #endif
   }
 
   DeinitGPU();

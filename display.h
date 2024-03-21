@@ -66,12 +66,7 @@ void ClearScreen(void);
 
 void TurnBacklightOn(void);
 void TurnBacklightOff(void);
-void TurnDisplayOn(void);
-void TurnDisplayOff(void);
 
 void DeinitSPIDisplay(void);
 
 void InitST7735R(void);
-
-void TurnDisplayOn(void);
-void TurnDisplayOff(void);
