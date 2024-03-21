@@ -29,9 +29,9 @@
 int CountNumChangedPixels(uint16_t *framebuffer, uint16_t *prevFramebuffer)
 {
   int changedPixels = 0;
-  for (int y = 0; y < gpuFrameHeight; ++y)
+  for (int y = 0; y < DISPLAY_HEIGHT; ++y)
   {
-    for (int x = 0; x < gpuFrameWidth; ++x)
+    for (int x = 0; x < DISPLAY_WIDTH; ++x)
       if (framebuffer[x] != prevFramebuffer[x])
         ++changedPixels;
 
@@ -91,11 +91,13 @@ int main()
   int spiY = -1;
   int spiEndX = DISPLAY_WIDTH;
 
-  InitGPU();
+  // InitGPU();
 
-  printf("GPU initialized gpuFrameWidth = %d, gpuFrameHeight = %d\n", gpuFrameWidth, gpuFrameHeight);
+  printf("GPU initialized gpuFrameWidth = %d, gpuFrameHeight = %d gpuFramebufferScanlineStrideBytes = %d\n", gpuFrameWidth, gpuFrameHeight, gpuFramebufferScanlineStrideBytes);
 
-  spans = (Span *)Malloc((gpuFrameWidth * gpuFrameHeight / 2) * sizeof(Span), "main() task spans");
+  spans = (Span *)Malloc((DISPLAY_WIDTH * DISPLAY_HEIGHT / 2) * sizeof(Span), "main() task spans");
+
+  int gpuFramebufferSizeBytes = DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(uint16_t);
   int size = gpuFramebufferSizeBytes;
 
   uint16_t *framebuffer[2] = {(uint16_t *)Malloc(size, "main() framebuffer0"), (uint16_t *)Malloc(gpuFramebufferSizeBytes, "main() framebuffer1")};
@@ -170,22 +172,13 @@ int main()
     //   __atomic_fetch_sub(&numNewGpuFrames, numNewFrames, __ATOMIC_SEQ_CST);
     // }
 
-
-
-
     // Draw some pixel in framebuffer[0] if we have new data.
     // draw diagonal line
     for (int y = 0; y < DISPLAY_DRAWABLE_HEIGHT; ++y)
-        framebuffer[0][y * DISPLAY_DRAWABLE_WIDTH + y] = 0xff00ff;
-
-
-
-
-
-
+      framebuffer[0][y * DISPLAY_DRAWABLE_WIDTH + y] = 0xff00ff;
 
     // If too many pixels have changed on screen, drop adaptively to interlaced updating to keep up the frame rate.
-    double inputDataFps = 1000000.0 / EstimateFrameRateInterval();
+    double inputDataFps = 1000000.0 / (1000000 / TARGET_FRAME_RATE); // EstimateFrameRateInterval();
     double desiredTargetFps = MAX(1, MIN(inputDataFps, TARGET_FRAME_RATE));
 
     const double timesliceToUseForScreenUpdates = 1500000;
@@ -205,10 +198,10 @@ int main()
     if (framebufferHasNewChangedPixels || prevFrameWasInterlacedUpdate)
     {
       // If possible, utilize a faster 4-wide pixel diffing method
-      if (gpuFrameWidth % 4 == 0 && gpuFramebufferScanlineStrideBytes % 8 == 0)
-        DiffFramebuffersToScanlineSpansFastAndCoarse4Wide(framebuffer[0], framebuffer[1], interlacedUpdate, frameParity, head);
-      else
-        DiffFramebuffersToScanlineSpansExact(framebuffer[0], framebuffer[1], interlacedUpdate, frameParity, head); // If disabled, or framebuffer width is not compatible, use the exact method
+      // if (DISPLAY_WIDTH % 4 == 0 && gpuFramebufferScanlineStrideBytes % 8 == 0)
+      DiffFramebuffersToScanlineSpansFastAndCoarse4Wide(framebuffer[0], framebuffer[1], interlacedUpdate, frameParity, head);
+      // else
+      //   DiffFramebuffersToScanlineSpansExact(framebuffer[0], framebuffer[1], interlacedUpdate, frameParity, head); // If disabled, or framebuffer width is not compatible, use the exact method
     }
 
     // Merge spans together on adjacent scanlines - works only if doing a progressive update
@@ -239,7 +232,7 @@ int main()
         {
           // We are doing a single line span and need to increase the X window. If possible,
           // peek ahead to cater to the next multiline span update if that will be compatible.
-          int nextEndX = gpuFrameWidth;
+          int nextEndX = DISPLAY_WIDTH;
           for (Span *j = i->next; j; j = j->next)
             if (j->endY > j->y + 1)
             {
@@ -284,7 +277,7 @@ int main()
         }
         while (x < endX)
           *data++ = __builtin_bswap16(scanline[x++]);
-        memcpy(prevScanline + i->x, scanline + i->x, (endX - i->x) * FRAMEBUFFER_BYTESPERPIXEL);
+        memcpy(prevScanline + i->x, scanline + i->x, (endX - i->x) * 2);
       }
       CommitTask(task);
       IN_SINGLE_THREADED_MODE_RUN_TASK();
