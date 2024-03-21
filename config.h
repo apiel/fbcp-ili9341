@@ -1,12 +1,14 @@
 #pragma once
 
+#ifndef REMOVE_ME
+#define REMOVE_ME 1
 // remove me
-  int gpuFramebufferScanlineStrideBytes = 480;
-  int displayXOffset = 0;
-  int displayYOffset = 0;
-  int gpuFrameHeight = 240;
-  int gpuFrameWidth = 240;
-
+int gpuFramebufferScanlineStrideBytes = 480;
+int displayXOffset = 0;
+int displayYOffset = 0;
+int gpuFrameHeight = 240;
+int gpuFrameWidth = 240;
+#endif
 
 #define ST7789 1
 #define ST7789VW 1
@@ -17,14 +19,12 @@
 #define USE_DMA_TRANSFERS 0
 #define DISPLAY_ROTATE_180_DEGREES 1
 
-
 // Build options: Uncomment any of these, or set at the command line to configure:
 
 // How many usecs worth of past frame rate data do we preserve in the history buffer. Higher values
 // make the frame rate display counter smoother and respond to changes with a delay, whereas smaller
 // values can make the display fluctuate a bit erratically.
 #define FRAMERATE_HISTORY_LENGTH 400000
-
 
 // If defined, no sleeps are specified and the code runs as fast as possible. This should not improve
 // performance, as the code has been developed with the mindset that sleeping should only occur at
@@ -85,7 +85,7 @@
 
 // By default, if the SPI bus is idle after rendering an interlaced frame, but the GPU has not yet produced
 // a new application frame to be displayed, the same frame will be rendered again for its other field.
-// Define this option to disable this behavior, in which case when an interlaced frame is rendered, the 
+// Define this option to disable this behavior, in which case when an interlaced frame is rendered, the
 // remaining other field half of the image will never be uploaded.
 // #define THROTTLE_INTERLACING
 
@@ -229,7 +229,7 @@
 #define LOW_BATTERY_POLLING_INTERVAL 1000000
 
 // If less than this much % of the screen changes per frame, the screen is considered to be inactive, and
-// the display backlight can automatically turn off, if TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY is 
+// the display backlight can automatically turn off, if TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY is
 // defined.
 #define DISPLAY_CONSIDERED_INACTIVE_PERCENTAGE (5.0 / 100.0)
 
