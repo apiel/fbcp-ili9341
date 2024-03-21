@@ -91,7 +91,7 @@ int main()
   int spiY = -1;
   int spiEndX = DISPLAY_WIDTH;
 
-  // InitGPU();
+  InitGPU();
 
   printf("GPU initialized gpuFrameWidth = %d, gpuFrameHeight = %d gpuFramebufferScanlineStrideBytes = %d\n", gpuFrameWidth, gpuFrameHeight, gpuFramebufferScanlineStrideBytes);
 
