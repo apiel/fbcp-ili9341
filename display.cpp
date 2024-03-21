@@ -6,6 +6,12 @@
 #include <stdio.h>
 #include <unistd.h>
 
+void sendAddr(uint8_t cmd, uint16_t addr0, uint16_t addr1)
+{
+  uint8_t addr[4] = { addr0 >> 8, addr0 & 0xFF, addr1 >> 8, addr1 & 0xFF };
+  sendCmd(cmd, addr, 4);
+}
+
 void ClearScreen()
 {
   for (int y = 0; y < DISPLAY_HEIGHT; ++y)
@@ -31,13 +37,6 @@ void ClearScreen()
 
   SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
   SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, 0, 0, (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
-}
-
-
-void sendAddr(uint8_t cmd, uint16_t addr0, uint16_t addr1)
-{
-  uint8_t addr[4] = { addr0 >> 8, addr0 & 0xFF, addr1 >> 8, addr1 & 0xFF };
-  sendCmd(cmd, addr, 4);
 }
 
 void drawStuff()
