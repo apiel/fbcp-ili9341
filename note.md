@@ -2,3 +2,5 @@ cmake -DST7789VW=ON -DGPIO_TFT_DATA_CONTROL=6 -DGPIO_TFT_RESET_PIN=5 -DGPIO_TFT_
 make -j
 sudo ./fbcp-ili9341
 
+
+when need to update display, always used fb[0]
