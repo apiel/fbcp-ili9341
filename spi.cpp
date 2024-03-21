@@ -241,8 +241,8 @@ int InitSPI()
   systemTimerRegister = (volatile uint64_t *)((uintptr_t)bcm2835 + BCM2835_TIMER_BASE + 0x04); // Generates an unaligned 64-bit pointer, but seems to be fine.
   // TODO: On graceful shutdown, (ctrl-c signal?) close(mem_fd)
 
-  uint32_t currentBcmCoreSpeed = MailboxRet2(0x00030002 /*Get Clock Rate*/, 0x4 /*CORE*/);
-  uint32_t maxBcmCoreTurboSpeed = MailboxRet2(0x00030004 /*Get Max Clock Rate*/, 0x4 /*CORE*/);
+  // uint32_t currentBcmCoreSpeed = MailboxRet2(0x00030002 /*Get Clock Rate*/, 0x4 /*CORE*/);
+  // uint32_t maxBcmCoreTurboSpeed = MailboxRet2(0x00030004 /*Get Max Clock Rate*/, 0x4 /*CORE*/);
 
   // Estimate how many microseconds transferring a single byte over the SPI bus takes?
   spiUsecsPerByte = 1000000.0 * 8.0 /*bits/byte*/ * SPI_BUS_CLOCK_DIVISOR / maxBcmCoreTurboSpeed;
