@@ -11,31 +11,7 @@
 #include "spi.h"
 #include "util.h"
 
-// Uncomment this to print out all bytes sent to the SPI bus
-// #define DEBUG_SPI_BUS_WRITES
-
-#ifdef DEBUG_SPI_BUS_WRITES
-#define DEBUG_PRINT_WRITTEN_BYTE(byte) \
-  do                                   \
-  {                                    \
-    printf("%02X", byte);              \
-    if ((writeCounter & 3) == 0)       \
-      printf("\n");                    \
-  } while (0)
-#else
-#define DEBUG_PRINT_WRITTEN_BYTE(byte) ((void)0)
-#endif
-
-#ifdef CHIP_SELECT_LINE_NEEDS_REFRESHING_EACH_32BITS_WRITTEN
-void ChipSelectHigh();
-#define TOGGLE_CHIP_SELECT_LINE() \
-  if ((++writeCounter & 3) == 0)  \
-  {                               \
-    ChipSelectHigh();             \
-  }
-#else
 #define TOGGLE_CHIP_SELECT_LINE() ((void)0)
-#endif
 
 static uint32_t writeCounter = 0;
 
@@ -45,7 +21,6 @@ static uint32_t writeCounter = 0;
     uint8_t w = (word);          \
     spi->fifo = w;               \
     TOGGLE_CHIP_SELECT_LINE();   \
-    DEBUG_PRINT_WRITTEN_BYTE(w); \
   } while (0)
 
 int mem_fd = -1;
