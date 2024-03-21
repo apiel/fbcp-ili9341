@@ -113,15 +113,10 @@ void InitST7735R()
     usleep(1000 * 1000);
     printf(".\n");
     usleep(1000 * 1000);
-    printf(".\n");
-    usleep(1000 * 1000);
-    printf(".\n");
-    usleep(1000 * 1000);
-    printf(".\n");
     printf("done sleep\n");
 }
 
 void DeinitSPIDisplay()
 {
-  ClearScreen();
+  // ClearScreen();
 }
