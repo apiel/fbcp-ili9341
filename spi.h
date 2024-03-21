@@ -347,26 +347,22 @@ static inline SPITask *AllocTask(uint32_t bytes) // Returns a pointer to a new S
 static inline void CommitTask(SPITask *task) // Advertises the given SPI task from main thread to worker, called on main thread
 {
   __sync_synchronize();
-#if !defined(KERNEL_MODULE_CLIENT) && !defined(KERNEL_MODULE)
   uint32_t tail = spiTaskMemory->queueTail;
-#endif
   spiTaskMemory->queueTail = (uint32_t)((uint8_t*)task - spiTaskMemory->buffer) + sizeof(SPITask) + task->size;
   __atomic_fetch_add(&spiTaskMemory->spiBytesQueued, task->PayloadSize()+1, __ATOMIC_RELAXED);
   __sync_synchronize();
-#if !defined(KERNEL_MODULE_CLIENT) && !defined(KERNEL_MODULE)
   if (spiTaskMemory->queueHead == tail) syscall(SYS_futex, &spiTaskMemory->queueTail, FUTEX_WAKE, 1, 0, 0, 0); // Wake the SPI thread if it was sleeping to get new tasks
-#endif
 }
 
-#define IN_SINGLE_THREADED_MODE_RUN_TASK() { \
-  SPITask *t = GetTask(); \
-  RunSPITask(t); \
-  DoneTask(t); \
-}
+// #define IN_SINGLE_THREADED_MODE_RUN_TASK() { \
+//   SPITask *t = GetTask(); \
+//   RunSPITask(t); \
+//   DoneTask(t); \
+// }
 
 int InitSPI(void);
 void DeinitSPI(void);
-void ExecuteSPITasks(void);
+// void ExecuteSPITasks(void);
 void RunSPITask(SPITask *task);
 SPITask *GetTask(void);
 void DoneTask(SPITask *task);

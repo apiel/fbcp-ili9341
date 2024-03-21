@@ -21,8 +21,6 @@
 #include "display.h"
 #include "util.h"
 
-// volatile bool programRunning = true;
-
 int main()
 {
   InitSPI();
