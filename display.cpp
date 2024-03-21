@@ -5,16 +5,15 @@
 #include <memory.h>
 #include <stdio.h>
 
-
 void ClearScreen()
 {
-  for(int y = 0; y < DISPLAY_HEIGHT; ++y)
+  for (int y = 0; y < DISPLAY_HEIGHT; ++y)
   {
 
-    SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH-1) >> 8, (DISPLAY_WIDTH-1) & 0xFF);
-    SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (DISPLAY_HEIGHT-1) >> 8, (DISPLAY_HEIGHT-1) & 0xFF);
+    SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
+    SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
 
-    SPITask *clearLine = AllocTask(DISPLAY_WIDTH*SPI_BYTESPERPIXEL);
+    SPITask *clearLine = AllocTask(DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
     clearLine->cmd = DISPLAY_WRITE_PIXELS;
     memset(clearLine->data, 0, clearLine->size);
     CommitTask(clearLine);
@@ -22,8 +21,8 @@ void ClearScreen()
     DoneTask(clearLine);
   }
 
-  SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH-1) >> 8, (DISPLAY_WIDTH-1) & 0xFF);
-  SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, 0, 0, (DISPLAY_HEIGHT-1) >> 8, (DISPLAY_HEIGHT-1) & 0xFF);
+  SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
+  SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, 0, 0, (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
 }
 
 void drawStuff()
@@ -41,7 +40,6 @@ void drawStuff()
     DoneTask(pixel);
   }
 }
-
 
 void InitST7735R()
 {
@@ -61,43 +59,43 @@ void InitST7735R()
   BEGIN_SPI_COMMUNICATION();
   {
     // usleep(120*1000);
-    SPI_TRANSFER(0x11/*Sleep Out*/);
+    SPI_TRANSFER(0x11 /*Sleep Out*/);
     usleep(120 * 1000);
-    SPI_TRANSFER(0x3A/*COLMOD: Pixel Format Set*/, 0x05/*16bpp*/);
+    SPI_TRANSFER(0x3A /*COLMOD: Pixel Format Set*/, 0x05 /*16bpp*/);
     usleep(20 * 1000);
 
-#define MADCTL_BGR_PIXEL_ORDER (1<<3)
-#define MADCTL_ROW_COLUMN_EXCHANGE (1<<5)
-#define MADCTL_COLUMN_ADDRESS_ORDER_SWAP (1<<6)
-#define MADCTL_ROW_ADDRESS_ORDER_SWAP (1<<7)
+#define MADCTL_BGR_PIXEL_ORDER (1 << 3)
+#define MADCTL_ROW_COLUMN_EXCHANGE (1 << 5)
+#define MADCTL_COLUMN_ADDRESS_ORDER_SWAP (1 << 6)
+#define MADCTL_ROW_ADDRESS_ORDER_SWAP (1 << 7)
 #define MADCTL_ROTATE_180_DEGREES (MADCTL_COLUMN_ADDRESS_ORDER_SWAP | MADCTL_ROW_ADDRESS_ORDER_SWAP)
 
     uint8_t madctl = 0;
     madctl |= MADCTL_ROW_ADDRESS_ORDER_SWAP;
     madctl ^= MADCTL_ROTATE_180_DEGREES;
 
-    SPI_TRANSFER(0x36/*MADCTL: Memory Access Control*/, madctl);
-    usleep(10*1000);
+    SPI_TRANSFER(0x36 /*MADCTL: Memory Access Control*/, madctl);
+    usleep(10 * 1000);
 
-    SPI_TRANSFER(0xBA/*DGMEN: Enable Gamma*/, 0x04);
+    SPI_TRANSFER(0xBA /*DGMEN: Enable Gamma*/, 0x04);
     bool invertColors = true;
 
     if (invertColors)
-      SPI_TRANSFER(0x21/*Display Inversion On*/);
+      SPI_TRANSFER(0x21 /*Display Inversion On*/);
     else
-      SPI_TRANSFER(0x20/*Display Inversion Off*/);
+      SPI_TRANSFER(0x20 /*Display Inversion Off*/);
 
-    SPI_TRANSFER(0x13/*NORON: Partial off (normal)*/);
-    usleep(10*1000);
+    SPI_TRANSFER(0x13 /*NORON: Partial off (normal)*/);
+    usleep(10 * 1000);
 
     // The ST7789 controller is actually a unit with 320x240 graphics memory area, but only 240x240 portion
     // of it is displayed. Therefore if we wanted to swap row address mode above, writes to Y=0...239 range will actually land in
     // memory in row addresses Y = 319-(0...239) = 319...80 range. To view this range, we must scroll the view by +80 units in Y
     // direction so that contents of Y=80...319 is displayed instead of Y=0...239.
     if ((madctl & MADCTL_ROW_ADDRESS_ORDER_SWAP))
-      SPI_TRANSFER(0x37/*VSCSAD: Vertical Scroll Start Address of RAM*/, 0, 320 - DISPLAY_WIDTH);
+      SPI_TRANSFER(0x37 /*VSCSAD: Vertical Scroll Start Address of RAM*/, 0, 320 - DISPLAY_WIDTH);
 
-    SPI_TRANSFER(/*Display ON*/0x29);
+    SPI_TRANSFER(/*Display ON*/ 0x29);
     usleep(100 * 1000);
 
     ClearScreen();
@@ -106,6 +104,15 @@ void InitST7735R()
     drawStuff();
     printf("done draw stuff, sleep\n");
     usleep(1000 * 1000);
+    printf(".");
+    usleep(1000 * 1000);
+    printf(".");
+    usleep(1000 * 1000);
+    printf(".");
+    usleep(1000 * 1000);
+    printf(".");
+    usleep(1000 * 1000);
+    printf(".");
     printf("done sleep\n");
   }
 
@@ -118,4 +125,3 @@ void DeinitSPIDisplay()
 {
   ClearScreen();
 }
-
