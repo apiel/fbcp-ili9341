@@ -25,7 +25,7 @@ void ClearScreen()
 
     uint16_t pixel = 0xFF00FF;
     uint8_t pixels[DISPLAY_WIDTH * SPI_BYTESPERPIXEL];
-    memset(pixels, 0, DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
+    memset(pixels, (uint8_t)0, DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
     sendCmd(DISPLAY_WRITE_PIXELS, pixels, DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
   }
 
