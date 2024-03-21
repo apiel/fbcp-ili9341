@@ -107,13 +107,6 @@ void InitST7735R()
 
     printf("draw stuff\n");
     drawStuff();
-    printf("done draw stuff, sleep\n");
-    usleep(1000 * 1000);
-    printf(".\n");
-    usleep(1000 * 1000);
-    printf(".\n");
-    usleep(1000 * 1000);
-    printf("done sleep\n");
 }
 
 void DeinitSPIDisplay()
