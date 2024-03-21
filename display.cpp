@@ -33,12 +33,14 @@ void drawStuff()
     int x = DISPLAY_HEIGHT - y - 1;
     SPI_TRANSFER(DISPLAY_SET_CURSOR_X, (uint8_t)(x >> 8), (uint8_t)(x & 0xFF), (uint8_t)(x >> 8), (uint8_t)(x & 0xFF));
     SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (uint8_t)(y >> 8), (uint8_t)(y & 0xFF));
-    SPITask *pixel = AllocTask(SPI_BYTESPERPIXEL);
-    pixel->cmd = DISPLAY_WRITE_PIXELS;
-    pixel->data[0] = 0xFF00FF;
-    CommitTask(pixel);
-    RunSPITask(pixel);
-    DoneTask(pixel);
+    // SPITask *pixel = AllocTask(SPI_BYTESPERPIXEL);
+    // pixel->cmd = DISPLAY_WRITE_PIXELS;
+    // pixel->data[0] = 0xFF00FF;
+    // CommitTask(pixel);
+    // RunSPITask(pixel);
+    // DoneTask(pixel);
+
+    SPI_TRANSFER(DISPLAY_WRITE_PIXELS, 0xFF00FF);
   }
 }
 
