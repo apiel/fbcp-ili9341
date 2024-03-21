@@ -11,19 +11,22 @@ void ClearScreen()
   for (int y = 0; y < DISPLAY_HEIGHT; ++y)
   {
 
-    SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
-    SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
+    // SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
+    // SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
+    sendAddr(DISPLAY_SET_CURSOR_X, 0, DISPLAY_WIDTH - 1);
+    sendAddr(DISPLAY_SET_CURSOR_Y, y, DISPLAY_HEIGHT - 1);
 
-    SPITask *clearLine = AllocTask(DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
-    clearLine->cmd = DISPLAY_WRITE_PIXELS;
-    memset(clearLine->data, 0, clearLine->size);
-    CommitTask(clearLine);
-    RunSPITask(clearLine);
-    DoneTask(clearLine);
+    // SPITask *clearLine = AllocTask(DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
+    // clearLine->cmd = DISPLAY_WRITE_PIXELS;
+    // memset(clearLine->data, 0, clearLine->size);
+    // CommitTask(clearLine);
+    // RunSPITask(clearLine);
+    // DoneTask(clearLine);
 
-    // uint8_t pixels[DISPLAY_WIDTH * SPI_BYTESPERPIXEL];
-    // memset(pixels, 0, DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
-
+    uint16_t pixel = 0xFF00FF;
+    uint8_t pixels[DISPLAY_WIDTH * SPI_BYTESPERPIXEL];
+    memset(pixels, 0, DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
+    sendCmd(DISPLAY_WRITE_PIXELS, pixels, DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
   }
 
   SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
@@ -42,13 +45,10 @@ void drawStuff()
   for (int y = 0; y < DISPLAY_HEIGHT; ++y)
   {
     int x = DISPLAY_HEIGHT - y - 1;
-    // SPI_TRANSFER(DISPLAY_SET_CURSOR_X, (uint8_t)(x >> 8), (uint8_t)(x & 0xFF), (uint8_t)(x >> 8), (uint8_t)(x & 0xFF));
-    // SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (uint8_t)(y >> 8), (uint8_t)(y & 0xFF));
     sendAddr(DISPLAY_SET_CURSOR_X, (uint16_t)x, (uint16_t)x);
     sendAddr(DISPLAY_SET_CURSOR_Y, (uint16_t)y, (uint16_t)y);
 
     uint16_t pixel = 0xFF00FF;
-    // SPI_TRANSFER(DISPLAY_WRITE_PIXELS, pixel >> 8, pixel & 0xFF);
     uint8_t data[2] = { pixel >> 8, pixel & 0xFF };
     sendCmd(DISPLAY_WRITE_PIXELS, data, 2);
   }
