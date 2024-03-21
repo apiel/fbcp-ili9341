@@ -237,11 +237,6 @@ typedef struct __attribute__((packed)) SPITask
 
 typedef struct SharedMemory
 {
-#ifdef USE_DMA_TRANSFERS
-  volatile DMAControlBlock cb[2];
-  volatile uint32_t dummyDMADestinationWriteAddress;
-  volatile uint32_t dmaTxChannel, dmaRxChannel;
-#endif
   volatile uint32_t queueHead;
   volatile uint32_t queueTail;
   volatile uint32_t spiBytesQueued; // Number of actual payload bytes in the queue
