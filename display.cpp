@@ -34,7 +34,7 @@ void drawStuff()
     SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(x >> 8), (uint8_t)(x & 0xFF), (uint8_t)(x >> 8), (uint8_t)(x & 0xFF));
     SPITask *pixel = AllocTask(SPI_BYTESPERPIXEL);
     pixel->cmd = DISPLAY_WRITE_PIXELS;
-    pixel->data[0] = 0xFF00;
+    pixel->data[0] = 0xFF00FF;
     CommitTask(pixel);
     RunSPITask(pixel);
     DoneTask(pixel);
@@ -104,15 +104,15 @@ void InitST7735R()
     drawStuff();
     printf("done draw stuff, sleep\n");
     usleep(1000 * 1000);
-    printf(".");
+    printf(".\n");
     usleep(1000 * 1000);
-    printf(".");
+    printf(".\n");
     usleep(1000 * 1000);
-    printf(".");
+    printf(".\n");
     usleep(1000 * 1000);
-    printf(".");
+    printf(".\n");
     usleep(1000 * 1000);
-    printf(".");
+    printf(".\n");
     printf("done sleep\n");
   }
 
