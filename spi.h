@@ -7,7 +7,6 @@
 #include <linux/futex.h>
 
 #include "display.h"
-#include "tick.h"
 #include "display.h"
 
 #define BCM2835_GPIO_BASE                    0x200000   // Address to GPIO register file
