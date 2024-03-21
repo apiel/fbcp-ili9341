@@ -39,15 +39,13 @@ void drawFillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color
 
 void ClearScreen()
 {
-  // sendAddr(DISPLAY_SET_CURSOR_X, 0, DISPLAY_WIDTH - 1);
-  // sendAddr(DISPLAY_SET_CURSOR_Y, 0, DISPLAY_HEIGHT - 1);
+  sendAddr(DISPLAY_SET_CURSOR_X, 0, DISPLAY_WIDTH - 1);
+  sendAddr(DISPLAY_SET_CURSOR_Y, 0, DISPLAY_HEIGHT - 1);
 
-  // uint16_t size = DISPLAY_WIDTH * DISPLAY_HEIGHT * SPI_BYTESPERPIXEL;
-  // uint8_t pixels[size];
-  // memset(pixels, (uint8_t)0, size);
-  // sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
-
-  drawFillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0x00FF);
+  uint16_t size = DISPLAY_WIDTH * DISPLAY_HEIGHT * SPI_BYTESPERPIXEL;
+  uint8_t pixels[size];
+  memset(pixels, (uint8_t)0, size);
+  sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
 
   SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
   SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, 0, 0, (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
@@ -60,6 +58,8 @@ void drawStuff()
     int x = DISPLAY_HEIGHT - y - 1;
     drawPixel(x, y, 0xFF00FF);
   }
+
+  drawFillRect(20, 0, 10, 10, 0x00FFFF);
 }
 
 void InitST7735R()
