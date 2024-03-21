@@ -86,26 +86,24 @@ int InitSPI()
   // Memory map GPIO and SPI peripherals for direct access
   mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
   if (mem_fd < 0)
-    FATAL_ERROR("can't open /dev/mem (run as sudo)");
+  {
+    fprintf( stderr, "can't open /dev/mem (run as sudo)\n");
+    return -1;
+  }
+
   printf("bcm_host_get_peripheral_address: %p, bcm_host_get_peripheral_size: %u, bcm_host_get_sdram_address: %p\n", bcm_host_get_peripheral_address(), bcm_host_get_peripheral_size(), bcm_host_get_sdram_address());
   bcm2835 = mmap(NULL, bcm_host_get_peripheral_size(), (PROT_READ | PROT_WRITE), MAP_SHARED, mem_fd, bcm_host_get_peripheral_address());
   if (bcm2835 == MAP_FAILED)
-    FATAL_ERROR("mapping /dev/mem failed");
+  {
+    fprintf(stderr, "mapping /dev/mem failed\n");
+    return -1;
+  }
   spi = (volatile SPIRegisterFile *)((uintptr_t)bcm2835 + BCM2835_SPI0_BASE);
   gpio = (volatile GPIORegisterFile *)((uintptr_t)bcm2835 + BCM2835_GPIO_BASE);
-  // systemTimerRegister = (volatile uint64_t *)((uintptr_t)bcm2835 + BCM2835_TIMER_BASE + 0x04); // Generates an unaligned 64-bit pointer, but seems to be fine.
 
-  // By default all GPIO pins are in input mode (0x00), initialize them for SPI and GPIO writes
-  // #ifdef GPIO_TFT_DATA_CONTROL
   SET_GPIO_MODE(GPIO_TFT_DATA_CONTROL, 0x01); // Data/Control pin to output (0x01)
   SET_GPIO_MODE(GPIO_SPI0_MOSI, 0x04);
   SET_GPIO_MODE(GPIO_SPI0_CLK, 0x04);
-
-  // The Adafruit 1.65" 240x240 ST7789 based display is unique compared to others that it does want to see the Chip Select line go
-  // low and high to start a new command. For that display we let hardware SPI toggle the CS line, and actually run TA<-0 and TA<-1
-  // transitions to let the CS line live. For most other displays, we just set CS line always enabled for the display throughout
-  // fbcp-ili9341 lifetime, which is a tiny bit faster.
-  // SET_GPIO_MODE(GPIO_SPI0_CE0, 0x04);
 
   spi->cs = BCM2835_SPI0_CS_CLEAR | DISPLAY_SPI_DRIVE_SETTINGS; // Initialize the Control and Status register to defaults: CS=0 (Chip Select), CPHA=0 (Clock Phase), CPOL=0 (Clock Polarity), CSPOL=0 (Chip Select Polarity), TA=0 (Transfer not active), and reset TX and RX queues.
   spi->clk = SPI_BUS_CLOCK_DIVISOR;                             // Clock Divider determines SPI bus speed, resulting speed=256MHz/clk
@@ -116,7 +114,6 @@ int InitSPI()
   printf("Initializing display\n");
   InitSPIDisplay();
 
-  LOG("InitSPI done");
   return 0;
 }
 

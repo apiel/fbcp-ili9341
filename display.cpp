@@ -51,7 +51,7 @@ void drawStuff()
   drawFillRect(20, 40, 20, 20, 0xFF00FF);
 }
 
-void InitST7735R()
+void InitSPIDisplay()
 {
   printf("Resetting display at reset GPIO pin %d\n", GPIO_TFT_RESET_PIN);
   SET_GPIO_MODE(GPIO_TFT_RESET_PIN, 1);

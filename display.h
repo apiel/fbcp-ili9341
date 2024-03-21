@@ -12,8 +12,6 @@
 #define DISPLAY_NATIVE_WIDTH 240
 #define DISPLAY_NATIVE_HEIGHT 240
 
-#define InitSPIDisplay InitST7735R
-
 
 // Unlike all other displays developed so far, Adafruit 1.54" 240x240 ST7789 display
 // actually needs to observe the CS line toggle during execution, it cannot just be always activated.
@@ -67,4 +65,4 @@ void TurnBacklightOff(void);
 
 void DeinitSPIDisplay(void);
 
-void InitST7735R(void);
+void InitSPIDisplay(void);
