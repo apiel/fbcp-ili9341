@@ -93,6 +93,8 @@ int main()
 
   InitGPU();
 
+  printf("GPU initialized gpuFrameWidth = %d, gpuFrameHeight = %d\n", gpuFrameWidth, gpuFrameHeight);
+
   spans = (Span *)Malloc((gpuFrameWidth * gpuFrameHeight / 2) * sizeof(Span), "main() task spans");
   int size = gpuFramebufferSizeBytes;
 
