@@ -12,7 +12,6 @@
 #include "util.h"
 #include "dma.h"
 #include "mailbox.h"
-#include "mem_alloc.h"
 
 // Uncomment this to print out all bytes sent to the SPI bus
 // #define DEBUG_SPI_BUS_WRITES
@@ -609,7 +608,7 @@ int InitSPI()
   LOG("Allocated DMA memory: mem: %p, phys: %p", spiTaskMemory, (void *)spiTaskMemoryPhysical);
   memset((void *)spiTaskMemory, 0, SHARED_MEMORY_SIZE);
 #else
-  spiTaskMemory = (SharedMemory *)Malloc(SHARED_MEMORY_SIZE, "spi.cpp shared task memory");
+  spiTaskMemory = (SharedMemory *)malloc(SHARED_MEMORY_SIZE);
 #endif
 
   spiTaskMemory->queueHead = spiTaskMemory->queueTail = spiTaskMemory->spiBytesQueued = 0;

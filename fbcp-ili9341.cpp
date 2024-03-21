@@ -24,7 +24,6 @@
 #include "util.h"
 #include "mailbox.h"
 #include "diff.h"
-#include "mem_alloc.h"
 
 int CountNumChangedPixels(uint16_t *framebuffer, uint16_t *prevFramebuffer)
 {
@@ -100,12 +99,12 @@ int main()
   // gpuFrameHeight = 240;
   // gpuFrameWidth = 240;
 
-  spans = (Span *)Malloc((DISPLAY_WIDTH * DISPLAY_HEIGHT / 2) * sizeof(Span), "main() task spans");
+  spans = (Span *)malloc((DISPLAY_WIDTH * DISPLAY_HEIGHT / 2) * sizeof(Span));
 
   int gpuFramebufferSizeBytes = DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(uint16_t);
   int size = gpuFramebufferSizeBytes;
 
-  uint16_t *framebuffer[2] = {(uint16_t *)Malloc(size, "main() framebuffer0"), (uint16_t *)Malloc(gpuFramebufferSizeBytes, "main() framebuffer1")};
+  uint16_t *framebuffer[2] = {(uint16_t *)malloc(size), (uint16_t *)malloc(gpuFramebufferSizeBytes)};
   memset(framebuffer[0], 0, size);                    // Doublebuffer received GPU memory contents, first buffer contains current GPU memory,
   memset(framebuffer[1], 0, gpuFramebufferSizeBytes); // second buffer contains whatever the display is currently showing. This allows diffing pixels between the two.
 
