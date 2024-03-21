@@ -17,18 +17,18 @@ void drawPixel(uint16_t x, uint16_t y, uint16_t color)
   sendAddr(DISPLAY_SET_CURSOR_X, (uint16_t)x, (uint16_t)x);
   sendAddr(DISPLAY_SET_CURSOR_Y, (uint16_t)y, (uint16_t)y);
 
-  uint8_t data[2] = {color >> 8, color & 0xFF};
+  uint8_t data[SPI_BYTESPERPIXEL] = {color >> 8, color & 0xFF};
   sendCmd(DISPLAY_WRITE_PIXELS, data, 2);
 }
 
 void drawFillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
-  sendAddr(DISPLAY_SET_CURSOR_X, (uint16_t)x, (uint16_t)(x + w - 1));
-  sendAddr(DISPLAY_SET_CURSOR_Y, (uint16_t)y, (uint16_t)(y + h - 1));
+  sendAddr(DISPLAY_SET_CURSOR_X, x, x + w);
+  sendAddr(DISPLAY_SET_CURSOR_Y, y, y + h);
 
   uint16_t size = w * h * SPI_BYTESPERPIXEL;
   uint8_t pixels[size];
-  uint8_t pixel[2] = {color >> 8, color & 0xFF};
+  uint8_t pixel[SPI_BYTESPERPIXEL] = {color >> 8, color & 0xFF};
   for (uint16_t i = 0; i < size; i += SPI_BYTESPERPIXEL)
   {
     pixels[i] = pixel[0];
