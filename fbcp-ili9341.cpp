@@ -172,10 +172,10 @@ int main()
 
 
     // Draw some pixel in framebuffer[0] if we have new data.
+    // draw diagonal line
     for (int y = 0; y < DISPLAY_DRAWABLE_HEIGHT; ++y)
-      for (int x = 0; x < DISPLAY_DRAWABLE_WIDTH; ++x)
-        framebuffer[0][y * DISPLAY_DRAWABLE_WIDTH + x] = 0xff00ff;
-        
+        framebuffer[0][y * DISPLAY_DRAWABLE_WIDTH + y] = 0xff00ff;
+
 
 
 
