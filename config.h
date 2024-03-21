@@ -42,7 +42,7 @@
 
 // If defined, communication with the SPI bus is handled with a dedicated thread. On the Pi Zero, this does
 // not gain much, since it only has one hardware thread.
-#define USE_SPI_THREAD
+// #define USE_SPI_THREAD
 
 // If USE_GPU_VSYNC is defined, then enabling this causes new frames to be snapshot more often than at
 // TARGET_FRAME_RATE interval to try to keep up smoother 60fps instead of stuttering. Consumes more CPU.
