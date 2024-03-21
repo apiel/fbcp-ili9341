@@ -1,5 +1,13 @@
 #pragma once
 
+// remove me
+  int gpuFramebufferScanlineStrideBytes = 480;
+  int displayXOffset = 0;
+  int displayYOffset = 0;
+  int gpuFrameHeight = 240;
+  int gpuFrameWidth = 240;
+
+
 #define ST7789 1
 #define ST7789VW 1
 #define GPIO_TFT_DATA_CONTROL 6

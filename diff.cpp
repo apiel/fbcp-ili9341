@@ -2,7 +2,7 @@
 #include "diff.h"
 #include "util.h"
 #include "display.h"
-#include "gpu.h"
+// #include "gpu.h"
 #include "spi.h"
 
 Span *spans = 0;

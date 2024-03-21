@@ -26,10 +26,6 @@
 #include "diff.h"
 #include "mem_alloc.h"
 
-  int gpuFramebufferScanlineStrideBytes = 480;
-  int displayXOffset = 0;
-  int displayYOffset = 0;
-
 int CountNumChangedPixels(uint16_t *framebuffer, uint16_t *prevFramebuffer)
 {
   int changedPixels = 0;
