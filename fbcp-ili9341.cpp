@@ -46,21 +46,6 @@ bool displayOff = false;
 
 volatile bool programRunning = true;
 
-const char *SignalToString(int signal)
-{
-  if (signal == SIGINT)
-    return "SIGINT";
-  if (signal == SIGQUIT)
-    return "SIGQUIT";
-  if (signal == SIGUSR1)
-    return "SIGUSR1";
-  if (signal == SIGUSR2)
-    return "SIGUSR2";
-  if (signal == SIGTERM)
-    return "SIGTERM";
-  return "?";
-}
-
 void MarkProgramQuitting()
 {
   programRunning = false;
@@ -68,7 +53,7 @@ void MarkProgramQuitting()
 
 void ProgramInterruptHandler(int signal)
 {
-  printf("Signal %s(%d) received, quitting\n", SignalToString(signal), signal);
+  printf("Signal (%d) received, quitting\n", signal);
   static int quitHandlerCalled = 0;
   if (++quitHandlerCalled >= 5)
   {
