@@ -118,8 +118,3 @@ void InitST7735R()
   printf("draw stuff\n");
   drawStuff();
 }
-
-void DeinitSPIDisplay()
-{
-  // ClearScreen();
-}

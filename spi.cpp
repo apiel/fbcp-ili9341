@@ -95,11 +95,6 @@ void WaitForPolledSPITransferToFinish()
     spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA | DISPLAY_SPI_DRIVE_SETTINGS;
 }
 
-void RunSPITask(SPITask *task)
-{
-  sendCmd(task->cmd, task->data, task->size);
-}
-
 void sendCmd(uint8_t cmd, uint8_t *payload, uint32_t payloadSize)
 {
   WaitForPolledSPITransferToFinish();
@@ -147,39 +142,6 @@ void sendCmd(uint8_t cmd, uint8_t data)
   sendCmd(cmd, &data, 1);
 }
 
-// #endif
-
-SharedMemory *spiTaskMemory = 0;
-volatile uint64_t spiThreadIdleUsecs = 0;
-volatile uint64_t spiThreadSleepStartTime = 0;
-volatile int spiThreadSleeping = 0;
-double spiUsecsPerByte;
-
-SPITask *GetTask() // Returns the first task in the queue, called in worker thread
-{
-  uint32_t head = spiTaskMemory->queueHead;
-  uint32_t tail = spiTaskMemory->queueTail;
-  if (head == tail)
-    return 0;
-  SPITask *task = (SPITask *)(spiTaskMemory->buffer + head);
-  if (task->cmd == 0) // Wrapped around?
-  {
-    spiTaskMemory->queueHead = 0;
-    __sync_synchronize();
-    if (tail == 0)
-      return 0;
-    task = (SPITask *)spiTaskMemory->buffer;
-  }
-  return task;
-}
-
-void DoneTask(SPITask *task) // Frees the first SPI task from the queue, called in worker thread
-{
-  __atomic_fetch_sub(&spiTaskMemory->spiBytesQueued, task->PayloadSize() + 1, __ATOMIC_RELAXED);
-  spiTaskMemory->queueHead = (uint32_t)((uint8_t *)task - spiTaskMemory->buffer) + sizeof(SPITask) + task->size;
-  __sync_synchronize();
-}
-
 int InitSPI()
 {
   // Memory map GPIO and SPI peripherals for direct access
@@ -209,10 +171,6 @@ int InitSPI()
   spi->cs = BCM2835_SPI0_CS_CLEAR | DISPLAY_SPI_DRIVE_SETTINGS; // Initialize the Control and Status register to defaults: CS=0 (Chip Select), CPHA=0 (Clock Phase), CPOL=0 (Clock Polarity), CSPOL=0 (Chip Select Polarity), TA=0 (Transfer not active), and reset TX and RX queues.
   spi->clk = SPI_BUS_CLOCK_DIVISOR;                             // Clock Divider determines SPI bus speed, resulting speed=256MHz/clk
 
-  spiTaskMemory = (SharedMemory *)malloc(SHARED_MEMORY_SIZE);
-
-  spiTaskMemory->queueHead = spiTaskMemory->queueTail = spiTaskMemory->spiBytesQueued = 0;
-
   // Enable fast 8 clocks per byte transfer mode, instead of slower 9 clocks per byte.
   UNLOCK_FAST_8_CLOCKS_SPI();
 
@@ -225,20 +183,15 @@ int InitSPI()
 
 void DeinitSPI()
 {
-  DeinitSPIDisplay();
-
   spi->cs = BCM2835_SPI0_CS_CLEAR | DISPLAY_SPI_DRIVE_SETTINGS;
 
-#ifndef KERNEL_MODULE_CLIENT
-#ifdef GPIO_TFT_DATA_CONTROL
   SET_GPIO_MODE(GPIO_TFT_DATA_CONTROL, 0);
-#endif
+
   SET_GPIO_MODE(GPIO_SPI0_CE1, 0);
   SET_GPIO_MODE(GPIO_SPI0_CE0, 0);
   SET_GPIO_MODE(GPIO_SPI0_MISO, 0);
   SET_GPIO_MODE(GPIO_SPI0_MOSI, 0);
   SET_GPIO_MODE(GPIO_SPI0_CLK, 0);
-#endif
 
   if (bcm2835)
   {
@@ -251,7 +204,4 @@ void DeinitSPI()
     close(mem_fd);
     mem_fd = -1;
   }
-
-  free(spiTaskMemory);
-  spiTaskMemory = 0;
 }
