@@ -47,29 +47,17 @@ void drawFillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color
 
 void ClearScreen()
 {
-  // sendAddr(DISPLAY_SET_CURSOR_X, 0, DISPLAY_WIDTH - 1);
-  // sendAddr(DISPLAY_SET_CURSOR_Y, 0, DISPLAY_HEIGHT - 1);
+  sendAddr(DISPLAY_SET_CURSOR_X, 0, DISPLAY_WIDTH - 1);
+  sendAddr(DISPLAY_SET_CURSOR_Y, 0, DISPLAY_HEIGHT - 1);
 
   // uint16_t size = DISPLAY_WIDTH * DISPLAY_HEIGHT * SPI_BYTESPERPIXEL;
   // uint8_t pixels[size];
   // memset(pixels, (uint8_t)0, size);
   // sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
 
-  // for (int y = 0; y < DISPLAY_HEIGHT; ++y)
-  // {
-  //   SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
-  //   SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
 
-  //   SPITask *clearLine = AllocTask(DISPLAY_WIDTH * SPI_BYTESPERPIXEL);
-  //   clearLine->cmd = DISPLAY_WRITE_PIXELS;
-  //   memset(clearLine->data, 0, clearLine->size);
-  //   CommitTask(clearLine);
-  //   RunSPITask(clearLine);
-  //   DoneTask(clearLine);
-  // }
-
-  SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
-  SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, 0, 0, (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
+  // SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
+  // SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, 0, 0, (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
 
   SPITask *clearLine = AllocTask(DISPLAY_WIDTH * DISPLAY_HEIGHT * SPI_BYTESPERPIXEL);
   clearLine->cmd = DISPLAY_WRITE_PIXELS;
@@ -90,7 +78,7 @@ void drawStuff()
     drawPixel(x, y, 0xFF00FF);
   }
 
-  // drawFillRect(20, 40, 10, 10, 0xFF00FF);
+  drawFillRect(20, 40, 10, 10, 0xFF00FF);
 }
 
 void InitST7735R()
