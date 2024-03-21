@@ -249,7 +249,7 @@ int InitSPI()
   // low and high to start a new command. For that display we let hardware SPI toggle the CS line, and actually run TA<-0 and TA<-1
   // transitions to let the CS line live. For most other displays, we just set CS line always enabled for the display throughout
   // fbcp-ili9341 lifetime, which is a tiny bit faster.
-  SET_GPIO_MODE(GPIO_SPI0_CE0, 0x04);
+  // SET_GPIO_MODE(GPIO_SPI0_CE0, 0x04);
 
   spi->cs = BCM2835_SPI0_CS_CLEAR | DISPLAY_SPI_DRIVE_SETTINGS; // Initialize the Control and Status register to defaults: CS=0 (Chip Select), CPHA=0 (Clock Phase), CPOL=0 (Clock Polarity), CSPOL=0 (Chip Select Polarity), TA=0 (Transfer not active), and reset TX and RX queues.
   spi->clk = SPI_BUS_CLOCK_DIVISOR;                             // Clock Divider determines SPI bus speed, resulting speed=256MHz/clk
