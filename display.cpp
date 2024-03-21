@@ -26,6 +26,22 @@ void ClearScreen()
   SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, 0, 0, (DISPLAY_HEIGHT-1) >> 8, (DISPLAY_HEIGHT-1) & 0xFF);
 }
 
+void drawStuff()
+{
+  for (int y = 0; y < DISPLAY_HEIGHT; ++y)
+  {
+    int x = DISPLAY_HEIGHT - y - 1;
+    SPI_TRANSFER(DISPLAY_SET_CURSOR_X, (uint8_t)(x >> 8), (uint8_t)(x & 0xFF), (uint8_t)(x >> 8), (uint8_t)(x & 0xFF));
+    SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(x >> 8), (uint8_t)(x & 0xFF), (uint8_t)(x >> 8), (uint8_t)(x & 0xFF));
+    SPITask *pixel = AllocTask(SPI_BYTESPERPIXEL);
+    pixel->cmd = DISPLAY_WRITE_PIXELS;
+    pixel->data[0] = 0xFF00;
+    CommitTask(pixel);
+    RunSPITask(pixel);
+    DoneTask(pixel);
+  }
+}
+
 
 void InitST7735R()
 {
@@ -85,6 +101,9 @@ void InitST7735R()
     usleep(100 * 1000);
 
     ClearScreen();
+    drawStuff();
+
+    usleep(1000 * 1000);
   }
 
   // And speed up to the desired operation speed finally after init is done.
