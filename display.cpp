@@ -38,7 +38,10 @@ void drawStuff()
     SPI_TRANSFER(DISPLAY_SET_CURSOR_X, (uint8_t)(x >> 8), (uint8_t)(x & 0xFF), (uint8_t)(x >> 8), (uint8_t)(x & 0xFF));
     SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (uint8_t)(y >> 8), (uint8_t)(y & 0xFF));
     uint16_t pixel = 0xFF00FF;
-    SPI_TRANSFER(DISPLAY_WRITE_PIXELS, pixel >> 8, pixel & 0xFF);
+    // SPI_TRANSFER(DISPLAY_WRITE_PIXELS, pixel >> 8, pixel & 0xFF);
+
+    uint8_t data[2] = { pixel >> 8, pixel & 0xFF };
+    sendCmd(DISPLAY_WRITE_PIXELS, data, 2);
   }
 }
 

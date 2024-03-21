@@ -130,6 +130,37 @@ void RunSPITask(SPITask *task)
 
   END_SPI_COMMUNICATION();
 }
+
+void sendCmd(uint8_t cmd, uint8_t *payload, uint32_t payloadSize)
+{
+  WaitForPolledSPITransferToFinish();
+
+  BEGIN_SPI_COMMUNICATION();
+
+  // An SPI transfer to the display always starts with one control (command) byte, followed by N data bytes.
+  CLEAR_GPIO(GPIO_TFT_DATA_CONTROL);
+
+  WRITE_FIFO(cmd);
+
+  while (!(spi->cs & (BCM2835_SPI0_CS_RXD | BCM2835_SPI0_CS_DONE))) /*nop*/
+    ;
+
+  SET_GPIO(GPIO_TFT_DATA_CONTROL);
+
+  while (payloadSize > 0)
+  {
+    uint32_t cs = spi->cs;
+    if ((cs & BCM2835_SPI0_CS_TXD))
+      WRITE_FIFO(*payload);
+    if ((cs & (BCM2835_SPI0_CS_RXR | BCM2835_SPI0_CS_RXF)))
+      spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA | DISPLAY_SPI_DRIVE_SETTINGS;
+    payload++;
+    payloadSize--;
+  }
+
+  END_SPI_COMMUNICATION();
+}
+
 // #endif
 
 SharedMemory *spiTaskMemory = 0;
