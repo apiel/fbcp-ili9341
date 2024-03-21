@@ -101,9 +101,12 @@ void InitST7735R()
     usleep(100 * 1000);
 
     ClearScreen();
-    drawStuff();
 
+    printf("draw stuff\n");
+    drawStuff();
+    printf("done draw stuff, sleep\n");
     usleep(1000 * 1000);
+    printf("done sleep\n");
   }
 
   // And speed up to the desired operation speed finally after init is done.
