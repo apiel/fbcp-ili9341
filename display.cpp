@@ -69,9 +69,9 @@ void InitST7735R()
   BEGIN_SPI_COMMUNICATION();
   {
     // usleep(120*1000);
-    SPI_TRANSFER(0x11 /*Sleep Out*/);
+    sendCmd(0x11 /*Sleep Out*/);
     usleep(120 * 1000);
-    SPI_TRANSFER(0x3A /*COLMOD: Pixel Format Set*/, 0x05 /*16bpp*/);
+    sendCmd(0x3A /*COLMOD: Pixel Format Set*/, 0x05 /*16bpp*/);
     usleep(20 * 1000);
 
 #define MADCTL_BGR_PIXEL_ORDER (1 << 3)
@@ -84,18 +84,18 @@ void InitST7735R()
     madctl |= MADCTL_ROW_ADDRESS_ORDER_SWAP;
     madctl ^= MADCTL_ROTATE_180_DEGREES;
 
-    SPI_TRANSFER(0x36 /*MADCTL: Memory Access Control*/, madctl);
+    sendCmd(0x36 /*MADCTL: Memory Access Control*/, madctl);
     usleep(10 * 1000);
 
-    SPI_TRANSFER(0xBA /*DGMEN: Enable Gamma*/, 0x04);
+    sendCmd(0xBA /*DGMEN: Enable Gamma*/, 0x04);
     bool invertColors = true;
 
     if (invertColors)
-      SPI_TRANSFER(0x21 /*Display Inversion On*/);
+      sendCmd(0x21 /*Display Inversion On*/);
     else
-      SPI_TRANSFER(0x20 /*Display Inversion Off*/);
+      sendCmd(0x20 /*Display Inversion Off*/);
 
-    SPI_TRANSFER(0x13 /*NORON: Partial off (normal)*/);
+    sendCmd(0x13 /*NORON: Partial off (normal)*/);
     usleep(10 * 1000);
 
     // The ST7789 controller is actually a unit with 320x240 graphics memory area, but only 240x240 portion
@@ -107,7 +107,7 @@ void InitST7735R()
 
     drawFillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0); // clear screen
 
-    SPI_TRANSFER(/*Display ON*/ 0x29);
+    sendCmd(/*Display ON*/ 0x29);
     usleep(100 * 1000);
   }
 

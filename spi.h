@@ -245,3 +245,5 @@ SPITask *GetTask(void);
 void DoneTask(SPITask *task);
 void DumpSPICS(uint32_t reg);
 void sendCmd(uint8_t cmd, uint8_t *payload, uint32_t payloadSize);
+void sendCmd(uint8_t cmd);
+void sendCmd(uint8_t cmd, uint8_t data);

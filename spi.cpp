@@ -137,6 +137,16 @@ void sendCmd(uint8_t cmd, uint8_t *payload, uint32_t payloadSize)
   END_SPI_COMMUNICATION();
 }
 
+void sendCmd(uint8_t cmd)
+{
+  sendCmd(cmd, nullptr, 0);
+}
+
+void sendCmd(uint8_t cmd, uint8_t data)
+{
+  sendCmd(cmd, &data, 1);
+}
+
 // #endif
 
 SharedMemory *spiTaskMemory = 0;
