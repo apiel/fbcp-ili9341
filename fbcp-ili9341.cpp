@@ -18,8 +18,8 @@
 
 #include "config.h"
 #include "spi.h"
-#include "gpu.h"
-#include "tick.h"
+// #include "gpu.h"
+// #include "tick.h"
 #include "display.h"
 #include "util.h"
 #include "mailbox.h"
