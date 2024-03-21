@@ -18,7 +18,7 @@
 
 #include "config.h"
 #include "spi.h"
-#include "gpu.h"
+// #include "gpu.h"
 #include "tick.h"
 #include "display.h"
 #include "util.h"
@@ -91,10 +91,12 @@ int main()
   int spiY = -1;
   int spiEndX = DISPLAY_WIDTH;
 
-  InitGPU();
+  // InitGPU();
 
-  printf("GPU initialized gpuFrameWidth = %d, gpuFrameHeight = %d gpuFramebufferScanlineStrideBytes = %d displayXOffset = %d displayYOffset = %d\n", gpuFrameWidth, gpuFrameHeight, gpuFramebufferScanlineStrideBytes, displayXOffset, displayYOffset);
+  // printf("GPU initialized gpuFrameWidth = %d, gpuFrameHeight = %d gpuFramebufferScanlineStrideBytes = %d displayXOffset = %d displayYOffset = %d\n", gpuFrameWidth, gpuFrameHeight, gpuFramebufferScanlineStrideBytes, displayXOffset, displayYOffset);
   int gpuFramebufferScanlineStrideBytes = 480;
+  int displayXOffset = 0;
+  int displayYOffset = 0;
 
   spans = (Span *)Malloc((DISPLAY_WIDTH * DISPLAY_HEIGHT / 2) * sizeof(Span), "main() task spans");
 
@@ -292,7 +294,7 @@ int main()
     }
   }
 
-  DeinitGPU();
+  // DeinitGPU();
   DeinitSPI();
   CloseMailbox();
   printf("Quit.\n");
