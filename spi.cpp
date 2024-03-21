@@ -238,25 +238,10 @@ int InitSPI()
   spi = (volatile SPIRegisterFile *)((uintptr_t)bcm2835 + BCM2835_SPI0_BASE);
   gpio = (volatile GPIORegisterFile *)((uintptr_t)bcm2835 + BCM2835_GPIO_BASE);
   systemTimerRegister = (volatile uint64_t *)((uintptr_t)bcm2835 + BCM2835_TIMER_BASE + 0x04); // Generates an unaligned 64-bit pointer, but seems to be fine.
-  // TODO: On graceful shutdown, (ctrl-c signal?) close(mem_fd)
-
-  // uint32_t currentBcmCoreSpeed = MailboxRet2(0x00030002 /*Get Clock Rate*/, 0x4 /*CORE*/);
-  // uint32_t maxBcmCoreTurboSpeed = MailboxRet2(0x00030004 /*Get Max Clock Rate*/, 0x4 /*CORE*/);
-
-  // Estimate how many microseconds transferring a single byte over the SPI bus takes?
-  // spiUsecsPerByte = 1000000.0 * 8.0 /*bits/byte*/ * SPI_BUS_CLOCK_DIVISOR / maxBcmCoreTurboSpeed;
-
-  // printf("BCM core speed: current: %uhz, max turbo: %uhz. SPI CDIV: %d, SPI max frequency: %.0fhz\n", currentBcmCoreSpeed, maxBcmCoreTurboSpeed, SPI_BUS_CLOCK_DIVISOR, (double)maxBcmCoreTurboSpeed / SPI_BUS_CLOCK_DIVISOR);
 
   // By default all GPIO pins are in input mode (0x00), initialize them for SPI and GPIO writes
   // #ifdef GPIO_TFT_DATA_CONTROL
   SET_GPIO_MODE(GPIO_TFT_DATA_CONTROL, 0x01); // Data/Control pin to output (0x01)
-                                              // #endif
-                                              //   // The Pirate Audio hat ST7789 based display has Data/Control on the MISO pin, so only initialize the pin as MISO if the
-                                              //   // Data/Control pin does not use it.
-                                              // #if !defined(GPIO_TFT_DATA_CONTROL) || GPIO_TFT_DATA_CONTROL != GPIO_SPI0_MISO
-                                              //   SET_GPIO_MODE(GPIO_SPI0_MISO, 0x04);
-                                              // #endif
   SET_GPIO_MODE(GPIO_SPI0_MOSI, 0x04);
   SET_GPIO_MODE(GPIO_SPI0_CLK, 0x04);
 
@@ -276,16 +261,8 @@ int InitSPI()
   // Enable fast 8 clocks per byte transfer mode, instead of slower 9 clocks per byte.
   UNLOCK_FAST_8_CLOCKS_SPI();
 
-  // #if !defined(KERNEL_MODULE) && (!defined(KERNEL_MODULE_CLIENT) || defined(KERNEL_MODULE_CLIENT_DRIVES))
   printf("Initializing display\n");
   InitSPIDisplay();
-
-  // // Create a dedicated thread to feed the SPI bus. While this is fast, it consumes a lot of CPU. It would be best to replace
-  // // this thread with a kernel module that processes the created SPI task queue using interrupts. (while juggling the GPIO D/C line as well)
-  // printf("Creating SPI task thread\n");
-  // int rc = pthread_create(&spiThread, NULL, spi_thread, NULL); // After creating the thread, it is assumed to have ownership of the SPI bus, so no SPI chat on the main thread after this.
-  // if (rc != 0)
-  //   FATAL_ERROR("Failed to create SPI thread!");
 
   LOG("InitSPI done");
   return 0;
