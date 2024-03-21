@@ -245,9 +245,9 @@ int InitSPI()
   // uint32_t maxBcmCoreTurboSpeed = MailboxRet2(0x00030004 /*Get Max Clock Rate*/, 0x4 /*CORE*/);
 
   // Estimate how many microseconds transferring a single byte over the SPI bus takes?
-  spiUsecsPerByte = 1000000.0 * 8.0 /*bits/byte*/ * SPI_BUS_CLOCK_DIVISOR / maxBcmCoreTurboSpeed;
+  // spiUsecsPerByte = 1000000.0 * 8.0 /*bits/byte*/ * SPI_BUS_CLOCK_DIVISOR / maxBcmCoreTurboSpeed;
 
-  printf("BCM core speed: current: %uhz, max turbo: %uhz. SPI CDIV: %d, SPI max frequency: %.0fhz\n", currentBcmCoreSpeed, maxBcmCoreTurboSpeed, SPI_BUS_CLOCK_DIVISOR, (double)maxBcmCoreTurboSpeed / SPI_BUS_CLOCK_DIVISOR);
+  // printf("BCM core speed: current: %uhz, max turbo: %uhz. SPI CDIV: %d, SPI max frequency: %.0fhz\n", currentBcmCoreSpeed, maxBcmCoreTurboSpeed, SPI_BUS_CLOCK_DIVISOR, (double)maxBcmCoreTurboSpeed / SPI_BUS_CLOCK_DIVISOR);
 
   // By default all GPIO pins are in input mode (0x00), initialize them for SPI and GPIO writes
   // #ifdef GPIO_TFT_DATA_CONTROL
