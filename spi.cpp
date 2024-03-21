@@ -145,7 +145,7 @@ void RunSPITask(SPITask *task)
       WRITE_FIFO(*tStart++);
     // TODO:      else asm volatile("yield");
     if ((cs & (BCM2835_SPI0_CS_RXR | BCM2835_SPI0_CS_RXF)))
-      spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA | DISPLAY_SPI_DRIVE_SETTINGS;
+      spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA; // | DISPLAY_SPI_DRIVE_SETTINGS;
   }
 
 #ifdef DISPLAY_NEEDS_CHIP_SELECT_SIGNAL
