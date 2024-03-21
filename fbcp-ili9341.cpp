@@ -42,7 +42,6 @@ int CountNumChangedPixels(uint16_t *framebuffer, uint16_t *prevFramebuffer)
 }
 
 uint64_t displayContentsLastChanged = 0;
-bool displayOff = false;
 
 volatile bool programRunning = true;
 
@@ -86,7 +85,6 @@ int main()
   OpenMailbox();
   InitSPI();
   displayContentsLastChanged = tick();
-  displayOff = false;
 
   // Track current SPI display controller write X and Y cursors.
   int spiX = -1;
@@ -202,80 +200,79 @@ int main()
       MergeScanlineSpanList(head);
 
     // Submit spans
-    if (!displayOff)
-      for (Span *i = head; i; i = i->next)
+    for (Span *i = head; i; i = i->next)
+    {
+      // Update the write cursor if needed
+      if (spiY != i->y)
       {
-        // Update the write cursor if needed
-        if (spiY != i->y)
-        {
-          QUEUE_MOVE_CURSOR_TASK(DISPLAY_SET_CURSOR_Y, displayYOffset + i->y);
-          IN_SINGLE_THREADED_MODE_RUN_TASK();
-          spiY = i->y;
-        }
+        QUEUE_MOVE_CURSOR_TASK(DISPLAY_SET_CURSOR_Y, displayYOffset + i->y);
+        IN_SINGLE_THREADED_MODE_RUN_TASK();
+        spiY = i->y;
+      }
 
-        if (i->endY > i->y + 1 && (spiX != i->x || spiEndX != i->endX)) // Multiline span?
+      if (i->endY > i->y + 1 && (spiX != i->x || spiEndX != i->endX)) // Multiline span?
+      {
+        QUEUE_SET_WRITE_WINDOW_TASK(DISPLAY_SET_CURSOR_X, displayXOffset + i->x, displayXOffset + i->endX - 1);
+        IN_SINGLE_THREADED_MODE_RUN_TASK();
+        spiX = i->x;
+        spiEndX = i->endX;
+      }
+      else // Singleline span
+      {
+        if (spiEndX < i->endX) // Need to push the X end window?
         {
-          QUEUE_SET_WRITE_WINDOW_TASK(DISPLAY_SET_CURSOR_X, displayXOffset + i->x, displayXOffset + i->endX - 1);
+          // We are doing a single line span and need to increase the X window. If possible,
+          // peek ahead to cater to the next multiline span update if that will be compatible.
+          int nextEndX = gpuFrameWidth;
+          for (Span *j = i->next; j; j = j->next)
+            if (j->endY > j->y + 1)
+            {
+              if (j->endX >= i->endX)
+                nextEndX = j->endX;
+              break;
+            }
+          QUEUE_SET_WRITE_WINDOW_TASK(DISPLAY_SET_CURSOR_X, displayXOffset + i->x, displayXOffset + nextEndX - 1);
           IN_SINGLE_THREADED_MODE_RUN_TASK();
           spiX = i->x;
-          spiEndX = i->endX;
+          spiEndX = nextEndX;
         }
-        else // Singleline span
+        else if (spiX != i->x)
         {
-          if (spiEndX < i->endX) // Need to push the X end window?
-          {
-            // We are doing a single line span and need to increase the X window. If possible,
-            // peek ahead to cater to the next multiline span update if that will be compatible.
-            int nextEndX = gpuFrameWidth;
-            for (Span *j = i->next; j; j = j->next)
-              if (j->endY > j->y + 1)
-              {
-                if (j->endX >= i->endX)
-                  nextEndX = j->endX;
-                break;
-              }
-            QUEUE_SET_WRITE_WINDOW_TASK(DISPLAY_SET_CURSOR_X, displayXOffset + i->x, displayXOffset + nextEndX - 1);
-            IN_SINGLE_THREADED_MODE_RUN_TASK();
-            spiX = i->x;
-            spiEndX = nextEndX;
-          }
-          else if (spiX != i->x)
-          {
-            QUEUE_MOVE_CURSOR_TASK(DISPLAY_SET_CURSOR_X, displayXOffset + i->x);
-            IN_SINGLE_THREADED_MODE_RUN_TASK();
-            spiX = i->x;
-          }
+          QUEUE_MOVE_CURSOR_TASK(DISPLAY_SET_CURSOR_X, displayXOffset + i->x);
+          IN_SINGLE_THREADED_MODE_RUN_TASK();
+          spiX = i->x;
         }
-
-        // Submit the span pixels
-        SPITask *task = AllocTask(i->size * SPI_BYTESPERPIXEL);
-        task->cmd = DISPLAY_WRITE_PIXELS;
-
-        bytesTransferred += task->PayloadSize() + 1;
-        uint16_t *scanline = framebuffer[0] + i->y * (gpuFramebufferScanlineStrideBytes >> 1);
-        uint16_t *prevScanline = framebuffer[1] + i->y * (gpuFramebufferScanlineStrideBytes >> 1);
-
-        uint16_t *data = (uint16_t *)task->data;
-        for (int y = i->y; y < i->endY; ++y, scanline += gpuFramebufferScanlineStrideBytes >> 1, prevScanline += gpuFramebufferScanlineStrideBytes >> 1)
-        {
-          int endX = (y + 1 == i->endY) ? i->lastScanEndX : i->endX;
-          int x = i->x;
-          while (x < endX && (x & 1))
-            *data++ = __builtin_bswap16(scanline[x++]);
-          while (x < (endX & ~1U))
-          {
-            uint32_t u = *(uint32_t *)(scanline + x);
-            *(uint32_t *)data = ((u & 0xFF00FF00U) >> 8) | ((u & 0x00FF00FFU) << 8);
-            data += 2;
-            x += 2;
-          }
-          while (x < endX)
-            *data++ = __builtin_bswap16(scanline[x++]);
-          memcpy(prevScanline + i->x, scanline + i->x, (endX - i->x) * FRAMEBUFFER_BYTESPERPIXEL);
-        }
-        CommitTask(task);
-        IN_SINGLE_THREADED_MODE_RUN_TASK();
       }
+
+      // Submit the span pixels
+      SPITask *task = AllocTask(i->size * SPI_BYTESPERPIXEL);
+      task->cmd = DISPLAY_WRITE_PIXELS;
+
+      bytesTransferred += task->PayloadSize() + 1;
+      uint16_t *scanline = framebuffer[0] + i->y * (gpuFramebufferScanlineStrideBytes >> 1);
+      uint16_t *prevScanline = framebuffer[1] + i->y * (gpuFramebufferScanlineStrideBytes >> 1);
+
+      uint16_t *data = (uint16_t *)task->data;
+      for (int y = i->y; y < i->endY; ++y, scanline += gpuFramebufferScanlineStrideBytes >> 1, prevScanline += gpuFramebufferScanlineStrideBytes >> 1)
+      {
+        int endX = (y + 1 == i->endY) ? i->lastScanEndX : i->endX;
+        int x = i->x;
+        while (x < endX && (x & 1))
+          *data++ = __builtin_bswap16(scanline[x++]);
+        while (x < (endX & ~1U))
+        {
+          uint32_t u = *(uint32_t *)(scanline + x);
+          *(uint32_t *)data = ((u & 0xFF00FF00U) >> 8) | ((u & 0x00FF00FFU) << 8);
+          data += 2;
+          x += 2;
+        }
+        while (x < endX)
+          *data++ = __builtin_bswap16(scanline[x++]);
+        memcpy(prevScanline + i->x, scanline + i->x, (endX - i->x) * FRAMEBUFFER_BYTESPERPIXEL);
+      }
+      CommitTask(task);
+      IN_SINGLE_THREADED_MODE_RUN_TASK();
+    }
 
     // Remember where in the command queue this frame ends, to keep track of the SPI thread's progress over it
     if (bytesTransferred > 0)
