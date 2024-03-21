@@ -75,7 +75,7 @@ void drawStuff()
     drawPixel(x, y, 0xFF00FF);
   }
 
-  drawFillRect(20, 40, 10, 10, 0xFF00FF);
+  // drawFillRect(20, 40, 10, 10, 0xFF00FF);
 }
 
 void InitST7735R()
