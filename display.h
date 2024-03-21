@@ -88,14 +88,6 @@ void TurnDisplayOff(void);
 
 void DeinitSPIDisplay(void);
 
-#if !defined(SPI_BUS_CLOCK_DIVISOR)
-#error Please define -DSPI_BUS_CLOCK_DIVISOR=<some even number> on the CMake command line! This parameter along with core_freq=xxx in /boot/config.txt defines the SPI display speed. (spi speed = core_freq / SPI_BUS_CLOCK_DIVISOR)
-#endif
-
-#if !defined(GPIO_TFT_DATA_CONTROL) && !defined(SPI_3WIRE_PROTOCOL)
-#error Please reconfigure CMake with -DGPIO_TFT_DATA_CONTROL=<int> specifying which pin your display is using for the Data/Control line!
-#endif
-
 #if defined(SPI_3WIRE_PROTOCOL) && !defined(SPI_3WIRE_DATA_COMMAND_FRAMING_BITS)
 // 3-wire SPI displays use 1 bit of D/C framing (unless otherwise specified. E.g. KeDei uses 16 bit instead)
 #define SPI_3WIRE_DATA_COMMAND_FRAMING_BITS 1
