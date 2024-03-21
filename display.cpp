@@ -23,26 +23,26 @@ void drawPixel(uint16_t x, uint16_t y, uint16_t color)
 
 void drawFillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
-  // sendAddr(DISPLAY_SET_CURSOR_X, x, x + w);
-  // sendAddr(DISPLAY_SET_CURSOR_Y, y, y + h);
+  sendAddr(DISPLAY_SET_CURSOR_X, x, x + w);
+  sendAddr(DISPLAY_SET_CURSOR_Y, y, y + h);
 
-  // uint16_t size = w * h * SPI_BYTESPERPIXEL;
-  // uint8_t pixels[size];
-  // uint8_t pixel[SPI_BYTESPERPIXEL] = {color >> 8, color & 0xFF};
-  // for (uint16_t i = 0; i < size; i += SPI_BYTESPERPIXEL)
-  // {
-  //   pixels[i] = pixel[0];
-  //   pixels[i + 1] = pixel[1];
-  // }
-  // sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
-
-  for (uint16_t i = 0; i < w; ++i)
+  uint16_t size = w * h * SPI_BYTESPERPIXEL;
+  uint8_t pixels[size];
+  uint8_t pixel[SPI_BYTESPERPIXEL] = {color >> 8, color & 0xFF};
+  for (uint16_t i = 0; i < size; i += SPI_BYTESPERPIXEL)
   {
-    for (uint16_t j = 0; j < h; ++j)
-    {
-      drawPixel(x + i, y + j, color);
-    }
+    pixels[i] = pixel[0];
+    pixels[i + 1] = pixel[1];
   }
+  sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
+
+  // for (uint16_t i = 0; i < w; ++i)
+  // {
+  //   for (uint16_t j = 0; j < h; ++j)
+  //   {
+  //     drawPixel(x + i, y + j, color);
+  //   }
+  // }
 }
 
 void ClearScreen()
@@ -53,15 +53,11 @@ void ClearScreen()
   uint16_t size = DISPLAY_WIDTH * DISPLAY_HEIGHT * SPI_BYTESPERPIXEL;
   uint8_t pixels[size];
   memset(pixels, (uint8_t)0, size);
+  // for (uint16_t i = 0; i < size; i++)
+  // {
+  //   pixels[i] = 0;
+  // }
   sendCmd(DISPLAY_WRITE_PIXELS, pixels, size);
-
-
-  // SPITask *clearLine = AllocTask(DISPLAY_WIDTH * DISPLAY_HEIGHT * SPI_BYTESPERPIXEL);
-  // clearLine->cmd = DISPLAY_WRITE_PIXELS;
-  // memset(clearLine->data, 0, clearLine->size);
-  // CommitTask(clearLine);
-  // RunSPITask(clearLine);
-  // DoneTask(clearLine);
 
   SPI_TRANSFER(DISPLAY_SET_CURSOR_X, 0, 0, (DISPLAY_WIDTH - 1) >> 8, (DISPLAY_WIDTH - 1) & 0xFF);
   SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, 0, 0, (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);

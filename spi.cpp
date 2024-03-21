@@ -97,38 +97,7 @@ void WaitForPolledSPITransferToFinish()
 
 void RunSPITask(SPITask *task)
 {
-  WaitForPolledSPITransferToFinish();
-
-  BEGIN_SPI_COMMUNICATION();
-
-  uint8_t *tStart = task->PayloadStart();
-  uint8_t *tEnd = task->PayloadEnd();
-  const uint32_t payloadSize = tEnd - tStart;
-  uint8_t *tPrefillEnd = tStart + MIN(15, payloadSize);
-
-  // An SPI transfer to the display always starts with one control (command) byte, followed by N data bytes.
-  CLEAR_GPIO(GPIO_TFT_DATA_CONTROL);
-
-  WRITE_FIFO(task->cmd);
-
-  while (!(spi->cs & (BCM2835_SPI0_CS_RXD | BCM2835_SPI0_CS_DONE))) /*nop*/
-    ;
-
-  SET_GPIO(GPIO_TFT_DATA_CONTROL);
-
-  while (tStart < tPrefillEnd)
-    WRITE_FIFO(*tStart++);
-  while (tStart < tEnd)
-  {
-    uint32_t cs = spi->cs;
-    if ((cs & BCM2835_SPI0_CS_TXD))
-      WRITE_FIFO(*tStart++);
-    // TODO:      else asm volatile("yield");
-    if ((cs & (BCM2835_SPI0_CS_RXR | BCM2835_SPI0_CS_RXF)))
-      spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA | DISPLAY_SPI_DRIVE_SETTINGS;
-  }
-
-  END_SPI_COMMUNICATION();
+  sendCmd(task->cmd, task->data, task->size);
 }
 
 void sendCmd(uint8_t cmd, uint8_t *payload, uint32_t payloadSize)
@@ -145,17 +114,24 @@ void sendCmd(uint8_t cmd, uint8_t *payload, uint32_t payloadSize)
   while (!(spi->cs & (BCM2835_SPI0_CS_RXD | BCM2835_SPI0_CS_DONE))) /*nop*/
     ;
 
-  SET_GPIO(GPIO_TFT_DATA_CONTROL);
-
-  while (payloadSize > 0)
+  if (payloadSize > 0)
   {
-    uint32_t cs = spi->cs;
-    if ((cs & BCM2835_SPI0_CS_TXD))
-      WRITE_FIFO(*payload);
-    if ((cs & (BCM2835_SPI0_CS_RXR | BCM2835_SPI0_CS_RXF)))
-      spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA | DISPLAY_SPI_DRIVE_SETTINGS;
-    payload++;
-    payloadSize--;
+    SET_GPIO(GPIO_TFT_DATA_CONTROL);
+
+    uint8_t *tStart = payload;
+    uint8_t *tEnd = payload + payloadSize;
+    uint8_t *tPrefillEnd = tStart + MIN(15, payloadSize);
+
+    while (tStart < tPrefillEnd)
+      WRITE_FIFO(*tStart++);
+    while (tStart < tEnd)
+    {
+      uint32_t cs = spi->cs;
+      if ((cs & BCM2835_SPI0_CS_TXD))
+        WRITE_FIFO(*tStart++);
+      if ((cs & (BCM2835_SPI0_CS_RXR | BCM2835_SPI0_CS_RXF)))
+        spi->cs = BCM2835_SPI0_CS_CLEAR_RX | BCM2835_SPI0_CS_TA | DISPLAY_SPI_DRIVE_SETTINGS;
+    }
   }
 
   END_SPI_COMMUNICATION();
