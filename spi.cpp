@@ -9,7 +9,6 @@
 
 #include "config.h"
 #include "spi.h"
-#include "util.h"
 
 static uint32_t writeCounter = 0;
 
@@ -54,7 +53,8 @@ void sendCmd(uint8_t cmd, uint8_t *payload, uint32_t payloadSize)
 
     uint8_t *tStart = payload;
     uint8_t *tEnd = payload + payloadSize;
-    uint8_t *tPrefillEnd = tStart + MIN(15, payloadSize);
+    // uint8_t *tPrefillEnd = tStart + MIN(15, payloadSize);
+    uint8_t *tPrefillEnd = tStart + (payloadSize > 15 ? 15 : payloadSize);
 
     while (tStart < tPrefillEnd)
       spi->fifo = *tStart++;
@@ -87,7 +87,7 @@ int InitSPI()
   mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
   if (mem_fd < 0)
   {
-    fprintf( stderr, "can't open /dev/mem (run as sudo)\n");
+    fprintf(stderr, "can't open /dev/mem (run as sudo)\n");
     return -1;
   }
 

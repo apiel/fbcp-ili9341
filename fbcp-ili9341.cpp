@@ -19,7 +19,6 @@
 #include "config.h"
 #include "spi.h"
 #include "display.h"
-#include "util.h"
 
 int main()
 {
