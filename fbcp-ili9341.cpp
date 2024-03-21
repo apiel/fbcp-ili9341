@@ -109,64 +109,64 @@ int main()
   printf("All initialized, now running main loop...\n");
   while (programRunning)
   {
-    prevFrameWasInterlacedUpdate = interlacedUpdate;
+    // prevFrameWasInterlacedUpdate = interlacedUpdate;
 
-    // If last update was interlaced, it means we still have half of the image pending to be updated. In such a case,
-    // sleep only until when we expect the next new frame of data to appear, and then continue independent of whether
-    // a new frame was produced or not - if not, then we will submit the rest of the unsubmitted fields. If yes, then
-    // the half fields of the new frame will be sent (or full, if the new frame has very little content)
-    if (!prevFrameWasInterlacedUpdate)
-    {
-      uint64_t waitStart = tick();
-      while (__atomic_load_n(&numNewGpuFrames, __ATOMIC_SEQ_CST) == 0)
-      {
-        if (programRunning)
-          syscall(SYS_futex, &numNewGpuFrames, FUTEX_WAIT, 0, 0, 0, 0); // Sleep until the next frame arrives
-      }
-    }
+    // // If last update was interlaced, it means we still have half of the image pending to be updated. In such a case,
+    // // sleep only until when we expect the next new frame of data to appear, and then continue independent of whether
+    // // a new frame was produced or not - if not, then we will submit the rest of the unsubmitted fields. If yes, then
+    // // the half fields of the new frame will be sent (or full, if the new frame has very little content)
+    // if (!prevFrameWasInterlacedUpdate)
+    // {
+    //   uint64_t waitStart = tick();
+    //   while (__atomic_load_n(&numNewGpuFrames, __ATOMIC_SEQ_CST) == 0)
+    //   {
+    //     if (programRunning)
+    //       syscall(SYS_futex, &numNewGpuFrames, FUTEX_WAIT, 0, 0, 0, 0); // Sleep until the next frame arrives
+    //   }
+    // }
 
-    bool spiThreadWasWorkingHardBefore = false;
+    // bool spiThreadWasWorkingHardBefore = false;
 
-    // At all times keep at most two rendered frames in the SPI task queue pending to be displayed. Only proceed to submit a new frame
-    // once the older of those has been displayed.
-    bool once = true;
-    while ((spiTaskMemory->queueTail + SPI_QUEUE_SIZE - spiTaskMemory->queueHead) % SPI_QUEUE_SIZE > (spiTaskMemory->queueTail + SPI_QUEUE_SIZE - prevFrameEnd) % SPI_QUEUE_SIZE)
-    {
-      if (spiTaskMemory->spiBytesQueued > 10000)
-        spiThreadWasWorkingHardBefore = true; // SPI thread had too much work in queue atm (2 full frames)
+    // // At all times keep at most two rendered frames in the SPI task queue pending to be displayed. Only proceed to submit a new frame
+    // // once the older of those has been displayed.
+    // bool once = true;
+    // while ((spiTaskMemory->queueTail + SPI_QUEUE_SIZE - spiTaskMemory->queueHead) % SPI_QUEUE_SIZE > (spiTaskMemory->queueTail + SPI_QUEUE_SIZE - prevFrameEnd) % SPI_QUEUE_SIZE)
+    // {
+    //   if (spiTaskMemory->spiBytesQueued > 10000)
+    //     spiThreadWasWorkingHardBefore = true; // SPI thread had too much work in queue atm (2 full frames)
 
-      // Peek at the SPI thread's workload and throttle a bit if it has got a lot of work still to do.
-      double usecsUntilSpiQueueEmpty = spiTaskMemory->spiBytesQueued * spiUsecsPerByte;
-      if (usecsUntilSpiQueueEmpty > 0)
-      {
-        uint32_t bytesInQueueBefore = spiTaskMemory->spiBytesQueued;
-        uint32_t sleepUsecs = (uint32_t)(usecsUntilSpiQueueEmpty * 0.4);
-        if (sleepUsecs > 1000)
-          usleep(500);
-      }
-    }
+    //   // Peek at the SPI thread's workload and throttle a bit if it has got a lot of work still to do.
+    //   double usecsUntilSpiQueueEmpty = spiTaskMemory->spiBytesQueued * spiUsecsPerByte;
+    //   if (usecsUntilSpiQueueEmpty > 0)
+    //   {
+    //     uint32_t bytesInQueueBefore = spiTaskMemory->spiBytesQueued;
+    //     uint32_t sleepUsecs = (uint32_t)(usecsUntilSpiQueueEmpty * 0.4);
+    //     if (sleepUsecs > 1000)
+    //       usleep(500);
+    //   }
+    // }
 
-    int expiredFrames = 0;
-    uint64_t now = tick();
-    while (expiredFrames < frameTimeHistorySize && now - frameTimeHistory[expiredFrames].time >= FRAMERATE_HISTORY_LENGTH)
-      ++expiredFrames;
-    if (expiredFrames > 0)
-    {
-      frameTimeHistorySize -= expiredFrames;
-      for (int i = 0; i < frameTimeHistorySize; ++i)
-        frameTimeHistory[i] = frameTimeHistory[i + expiredFrames];
-    }
+    // int expiredFrames = 0;
+    // uint64_t now = tick();
+    // while (expiredFrames < frameTimeHistorySize && now - frameTimeHistory[expiredFrames].time >= FRAMERATE_HISTORY_LENGTH)
+    //   ++expiredFrames;
+    // if (expiredFrames > 0)
+    // {
+    //   frameTimeHistorySize -= expiredFrames;
+    //   for (int i = 0; i < frameTimeHistorySize; ++i)
+    //     frameTimeHistory[i] = frameTimeHistory[i + expiredFrames];
+    // }
 
-    int numNewFrames = __atomic_load_n(&numNewGpuFrames, __ATOMIC_SEQ_CST);
-    bool gotNewFramebuffer = (numNewFrames > 0);
+    // int numNewFrames = __atomic_load_n(&numNewGpuFrames, __ATOMIC_SEQ_CST);
+    // bool gotNewFramebuffer = (numNewFrames > 0);
     bool framebufferHasNewChangedPixels = true;
-    uint64_t frameObtainedTime;
-    if (gotNewFramebuffer)
-    {
-      memcpy(framebuffer[0], videoCoreFramebuffer[1], gpuFramebufferSizeBytes);
+    // uint64_t frameObtainedTime;
+    // if (gotNewFramebuffer)
+    // {
+    //   memcpy(framebuffer[0], videoCoreFramebuffer[1], gpuFramebufferSizeBytes);
 
-      __atomic_fetch_sub(&numNewGpuFrames, numNewFrames, __ATOMIC_SEQ_CST);
-    }
+    //   __atomic_fetch_sub(&numNewGpuFrames, numNewFrames, __ATOMIC_SEQ_CST);
+    // }
 
 
 
