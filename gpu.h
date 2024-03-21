@@ -15,8 +15,8 @@
 
 
 
-extern int gpuFramebufferScanlineStrideBytes = 480;
-extern int displayXOffset = 0;
-extern int displayYOffset = 0;
-extern int gpuFrameHeight = 240;
-extern int gpuFrameWidth = 240;
+extern int gpuFramebufferScanlineStrideBytes;
+extern int displayXOffset;
+extern int displayYOffset;
+extern int gpuFrameHeight;
+extern int gpuFrameWidth;

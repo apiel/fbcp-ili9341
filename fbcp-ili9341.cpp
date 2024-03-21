@@ -94,6 +94,11 @@ int main()
   // InitGPU();
 
   // printf("GPU initialized gpuFrameWidth = %d, gpuFrameHeight = %d gpuFramebufferScanlineStrideBytes = %d displayXOffset = %d displayYOffset = %d\n", gpuFrameWidth, gpuFrameHeight, gpuFramebufferScanlineStrideBytes, displayXOffset, displayYOffset);
+  gpuFramebufferScanlineStrideBytes = 480;
+  displayXOffset = 0;
+  displayYOffset = 0;
+  gpuFrameHeight = 240;
+  gpuFrameWidth = 240;
 
   spans = (Span *)Malloc((DISPLAY_WIDTH * DISPLAY_HEIGHT / 2) * sizeof(Span), "main() task spans");
 
