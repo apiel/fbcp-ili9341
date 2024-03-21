@@ -20,16 +20,13 @@
 #include "spi.h"
 #include "display.h"
 #include "util.h"
-#include "mailbox.h"
 
 volatile bool programRunning = true;
 
 int main()
 {
-  // OpenMailbox();
   InitSPI();
 
   DeinitSPI();
-  // CloseMailbox();
   printf("Quit.\n");
 }

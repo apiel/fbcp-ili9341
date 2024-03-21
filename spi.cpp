@@ -10,7 +10,6 @@
 #include "config.h"
 #include "spi.h"
 #include "util.h"
-#include "mailbox.h"
 
 // Uncomment this to print out all bytes sent to the SPI bus
 // #define DEBUG_SPI_BUS_WRITES
