@@ -24,6 +24,9 @@ int main()
 {
   InitSPI();
 
+  printf("Initializing display\n");
+  InitSPIDisplay();
+
   DeinitSPI();
   printf("Quit.\n");
 }

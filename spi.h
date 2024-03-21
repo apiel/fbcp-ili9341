@@ -8,9 +8,6 @@
 
 #include <unistd.h> // usleep
 
-#include "display.h"
-#include "display.h"
-
 #define BCM2835_GPIO_BASE                    0x200000   // Address to GPIO register file
 #define BCM2835_SPI0_BASE                    0x204000   // Address to SPI0 register file
 #define BCM2835_TIMER_BASE                   0x3000     // Address to System Timer register file

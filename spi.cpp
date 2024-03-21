@@ -111,9 +111,6 @@ int InitSPI()
   // Enable fast 8 clocks per byte transfer mode, instead of slower 9 clocks per byte.
   UNLOCK_FAST_8_CLOCKS_SPI();
 
-  printf("Initializing display\n");
-  InitSPIDisplay();
-
   return 0;
 }
 
