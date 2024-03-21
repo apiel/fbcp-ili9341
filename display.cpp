@@ -30,16 +30,25 @@ void ClearScreen()
   SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, 0, 0, (DISPLAY_HEIGHT - 1) >> 8, (DISPLAY_HEIGHT - 1) & 0xFF);
 }
 
+
+void sendAddr(uint8_t cmd, uint16_t addr0, uint16_t addr1)
+{
+  uint8_t addr[4] = { addr0 >> 8, addr0 & 0xFF, addr1 >> 8, addr1 & 0xFF };
+  sendCmd(cmd, addr, 4);
+}
+
 void drawStuff()
 {
   for (int y = 0; y < DISPLAY_HEIGHT; ++y)
   {
     int x = DISPLAY_HEIGHT - y - 1;
-    SPI_TRANSFER(DISPLAY_SET_CURSOR_X, (uint8_t)(x >> 8), (uint8_t)(x & 0xFF), (uint8_t)(x >> 8), (uint8_t)(x & 0xFF));
-    SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (uint8_t)(y >> 8), (uint8_t)(y & 0xFF));
+    // SPI_TRANSFER(DISPLAY_SET_CURSOR_X, (uint8_t)(x >> 8), (uint8_t)(x & 0xFF), (uint8_t)(x >> 8), (uint8_t)(x & 0xFF));
+    // SPI_TRANSFER(DISPLAY_SET_CURSOR_Y, (uint8_t)(y >> 8), (uint8_t)(y & 0xFF), (uint8_t)(y >> 8), (uint8_t)(y & 0xFF));
+    sendAddr(DISPLAY_SET_CURSOR_X, (uint16_t)x, (uint16_t)x);
+    sendAddr(DISPLAY_SET_CURSOR_Y, (uint16_t)y, (uint16_t)y);
+
     uint16_t pixel = 0xFF00FF;
     // SPI_TRANSFER(DISPLAY_WRITE_PIXELS, pixel >> 8, pixel & 0xFF);
-
     uint8_t data[2] = { pixel >> 8, pixel & 0xFF };
     sendCmd(DISPLAY_WRITE_PIXELS, data, 2);
   }
