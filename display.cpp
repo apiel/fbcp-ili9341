@@ -88,12 +88,9 @@ void InitST7735R()
     usleep(10 * 1000);
 
     sendCmd(0xBA /*DGMEN: Enable Gamma*/, 0x04);
-    bool invertColors = true;
 
-    if (invertColors)
-      sendCmd(0x21 /*Display Inversion On*/);
-    else
-      sendCmd(0x20 /*Display Inversion Off*/);
+    sendCmd(0x21 /*Display Inversion On*/);
+    // sendCmd(0x20 /*Display Inversion Off*/);
 
     sendCmd(0x13 /*NORON: Partial off (normal)*/);
     usleep(10 * 1000);
@@ -103,7 +100,10 @@ void InitST7735R()
     // memory in row addresses Y = 319-(0...239) = 319...80 range. To view this range, we must scroll the view by +80 units in Y
     // direction so that contents of Y=80...319 is displayed instead of Y=0...239.
     if ((madctl & MADCTL_ROW_ADDRESS_ORDER_SWAP))
-      SPI_TRANSFER(0x37 /*VSCSAD: Vertical Scroll Start Address of RAM*/, 0, 320 - DISPLAY_WIDTH);
+    {
+      uint8_t data[4] = {0, 0, (uint8_t)(240 >> 8), (uint8_t)(240 & 0xFF)};
+      sendCmd(0x37 /*VSCSAD: Vertical Scroll Start Address of RAM*/, data, 4);
+    }
 
     drawFillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0); // clear screen
 

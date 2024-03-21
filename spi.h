@@ -132,44 +132,44 @@ typedef struct __attribute__((packed)) SPITask
 
 
 // A convenience for defining and dispatching SPI task bytes inline
-#define SPI_TRANSFER(command, ...) do { \
-    char data_buffer[] = { __VA_ARGS__ }; \
-    SPITask *t = AllocTask(sizeof(data_buffer)); \
-    t->cmd = (command); \
-    memcpy(t->data, data_buffer, sizeof(data_buffer)); \
-    CommitTask(t); \
-    RunSPITask(t); \
-    DoneTask(t); \
-  } while(0)
+// #define SPI_TRANSFER(command, ...) do { \
+//     char data_buffer[] = { __VA_ARGS__ }; \
+//     SPITask *t = AllocTask(sizeof(data_buffer)); \
+//     t->cmd = (command); \
+//     memcpy(t->data, data_buffer, sizeof(data_buffer)); \
+//     CommitTask(t); \
+//     RunSPITask(t); \
+//     DoneTask(t); \
+//   } while(0)
 
-#define QUEUE_SPI_TRANSFER(command, ...) do { \
-    char data_buffer[] = { __VA_ARGS__ }; \
-    SPITask *t = AllocTask(sizeof(data_buffer)); \
-    t->cmd = (command); \
-    memcpy(t->data, data_buffer, sizeof(data_buffer)); \
-    CommitTask(t); \
-  } while(0)
+// #define QUEUE_SPI_TRANSFER(command, ...) do { \
+//     char data_buffer[] = { __VA_ARGS__ }; \
+//     SPITask *t = AllocTask(sizeof(data_buffer)); \
+//     t->cmd = (command); \
+//     memcpy(t->data, data_buffer, sizeof(data_buffer)); \
+//     CommitTask(t); \
+//   } while(0)
 
 
-#define QUEUE_MOVE_CURSOR_TASK(cursor, pos) do { \
-    SPITask *task = AllocTask(2); \
-    task->cmd = (cursor); \
-    task->data[0] = (pos) >> 8; \
-    task->data[1] = (pos) & 0xFF; \
-    bytesTransferred += 3; \
-    CommitTask(task); \
-  } while(0)
+// #define QUEUE_MOVE_CURSOR_TASK(cursor, pos) do { \
+//     SPITask *task = AllocTask(2); \
+//     task->cmd = (cursor); \
+//     task->data[0] = (pos) >> 8; \
+//     task->data[1] = (pos) & 0xFF; \
+//     bytesTransferred += 3; \
+//     CommitTask(task); \
+//   } while(0)
 
-#define QUEUE_SET_WRITE_WINDOW_TASK(cursor, x, endX) do { \
-    SPITask *task = AllocTask(4); \
-    task->cmd = (cursor); \
-    task->data[0] = (x) >> 8; \
-    task->data[1] = (x) & 0xFF; \
-    task->data[2] = (endX) >> 8; \
-    task->data[3] = (endX) & 0xFF; \
-    bytesTransferred += 5; \
-    CommitTask(task); \
-  } while(0)
+// #define QUEUE_SET_WRITE_WINDOW_TASK(cursor, x, endX) do { \
+//     SPITask *task = AllocTask(4); \
+//     task->cmd = (cursor); \
+//     task->data[0] = (x) >> 8; \
+//     task->data[1] = (x) & 0xFF; \
+//     task->data[2] = (endX) >> 8; \
+//     task->data[3] = (endX) & 0xFF; \
+//     bytesTransferred += 5; \
+//     CommitTask(task); \
+//   } while(0)
 
 typedef struct SharedMemory
 {
