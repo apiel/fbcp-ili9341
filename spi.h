@@ -1,11 +1,6 @@
 #pragma once
 
-#ifndef KERNEL_MODULE
 #include <inttypes.h>
-#include <sys/syscall.h>
-#endif
-#include <linux/futex.h>
-
 #include <unistd.h> // usleep
 
 #define BCM2835_GPIO_BASE                    0x200000   // Address to GPIO register file

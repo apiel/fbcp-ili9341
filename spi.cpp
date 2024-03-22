@@ -1,11 +1,7 @@
-#ifndef KERNEL_MODULE
 #include <stdio.h>    // printf, stderr
-#include <syslog.h>   // syslog
 #include <fcntl.h>    // open, O_RDWR, O_SYNC
 #include <sys/mman.h> // mmap, munmap
-#include <pthread.h>  // pthread_create
 #include <bcm_host.h> // bcm_host_get_peripheral_address, bcm_host_get_peripheral_size, bcm_host_get_sdram_address
-#endif
 
 #include "config.h"
 #include "spi.h"
